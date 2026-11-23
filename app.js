@@ -1,6 +1,5 @@
 /* ==========================================================================
-   Hương Gừng (huonggung.com) — Dữ liệu thực đơn & tương tác sổ tay
-   Viết theo ES5/ES6 thuần, chạy trực tiếp qua file:// không cần server/build
+   Hương Gừng — Dữ liệu thực đơn nhiều danh mục, tìm kiếm & giỏ hàng
    ========================================================================== */
 
 (function () {
@@ -17,11 +16,11 @@
       category: "xoa-bop",
       categoryLabel: "Cốt gừng xoa bóp",
       name: "Cốt Gừng Không Rượu",
-      status: "Đang có sẵn · Mẻ mới đóng tuần này",
+      status: "Đang có sẵn · Mẻ mới tuần này",
       image: "assets/sp-khong-ruou.jpg",
       imageAlt: "Chai thủy tinh nâu đựng cốt gừng không rượu cùng chén nước cốt vàng trong và lát gừng tươi",
       shortDesc:
-        "Dành cho bạn ngại mùi rượu hoặc da dễ khô rát (mẹ sau sinh, ngồi điều hòa nhiều, người lớn tuổi). Đã lắng tách tinh bột ở tủ mát 2–4°C và thanh trùng kín ở 82–85°C nên thoa thấm êm, không bết trắng, không phồng chai chua ga.",
+        "Dành cho bạn ngại mùi rượu hoặc da dễ khô rát (mẹ sau sinh, ngồi điều hòa nhiều, người lớn tuổi). Đã lắng tách tinh bột ở tủ mát 2–4°C và thanh trùng kín ở 82–85°C nên thoa thấm êm, không bết trắng.",
       variants: [
         { id: "200ml", label: "200ml", price: 185000 },
         { id: "500ml", label: "500ml", price: 390000 }
@@ -94,18 +93,31 @@
     }
   ];
 
+  // Các sản phẩm mở rộng sắp ra lò (lọc khớp theo danh mục & ô tìm kiếm)
   var UPCOMING = [
     {
       code: "№ 04",
+      category: "ngam-chan",
+      categoryLabel: "Ngâm chân",
       name: "Muối Gừng Thảo Mộc Ngâm Chân",
       meta: "Hũ thủy tinh 400g · Đang thử mẻ nhỏ",
-      note: "Muối hạt rang giòn cùng gừng sẻ băm, ngải cứu và sả khô để bạn múc 1 thìa thả thẳng vào chậu nước nóng cho tiện."
+      note: "Muối hạt rang giòn cùng gừng sẻ băm, ngải cứu và sả khô để bạn múc 1 thìa thả thẳng vào chậu nước nóng."
     },
     {
       code: "№ 05",
-      name: "Cốt Gừng Sả Quế Mật Ong (pha uống ấm)",
-      meta: "Chai 300ml · Đang hoàn thiện",
-      note: "Mình đang chỉnh độ ngọt và kiểm tra độ ổn định nhiệt độ phòng trước khi mở bán."
+      category: "do-uong",
+      categoryLabel: "Trà & Đồ uống ấm",
+      name: "Cốt Gừng Sả Quế Mật Ong",
+      meta: "Chai 300ml (pha uống ấm) · Đang hoàn thiện",
+      note: "Mình đang chỉnh độ ngọt thanh từ mật ong và kiểm tra độ ổn định nhiệt độ phòng trước khi mở bán."
+    },
+    {
+      code: "№ 06",
+      category: "gia-vi",
+      categoryLabel: "Gia vị nhà bếp",
+      name: "Cốt Gừng Muối Biển Nấu Ăn",
+      meta: "Chai 250ml · Đang lên công thức",
+      note: "Ép từ gừng già phối muối biển và giấm gạo để ướp cá thịt, pha nước chấm hoặc nấu cháo cho tiện."
     }
   ];
 
@@ -147,9 +159,9 @@
     }
   ];
 
-  // Trạng thái ứng dụng
   var state = {
     filter: "all",
+    query: "",
     selectedVariants: {
       "cot-khong-ruou": "200ml",
       "cot-xuyen-khung": "250ml",
@@ -163,10 +175,11 @@
 
   var toastTimer = null;
 
-  // Các phần tử DOM
-  var menuListEl = document.getElementById("menu-list");
+  var menuGridEl = document.getElementById("menu-grid");
+  var menuEmptyEl = document.getElementById("menu-empty");
   var upcomingBoxEl = document.getElementById("upcoming-box");
-  var upcomingListEl = document.getElementById("upcoming-list");
+  var upcomingGridEl = document.getElementById("upcoming-grid");
+  var searchInputEl = document.getElementById("product-search");
   var faqListEl = document.getElementById("faq-list");
   var cartCountEl = document.getElementById("cart-count");
   var openCartBtn = document.getElementById("open-cart-btn");
@@ -197,6 +210,14 @@
       .replace(/"/g, "&quot;");
   }
 
+  function normalizeText(str) {
+    return String(str)
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d");
+  }
+
   function generateOrderCode() {
     var num = Math.floor(1000 + Math.random() * 9000);
     return "HG-" + num;
@@ -217,7 +238,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.cart));
     } catch (e) {
-      // Bỏ qua nếu trình duyệt chặn localStorage ở chế độ file://
+      // Bỏ qua nếu trình duyệt chặn localStorage
     }
   }
 
@@ -279,20 +300,40 @@
     }, 3200);
   }
 
-  // Vẽ danh sách sản phẩm và món sắp ra lò theo bộ lọc
+  function matchesSearch(text, query) {
+    if (!query) return true;
+    return normalizeText(text).indexOf(normalizeText(query)) !== -1;
+  }
+
   function renderMenu() {
-    var showUpcoming = state.filter === "all" || state.filter === "sap-ra-lo";
     var filtered = [];
-    if (state.filter !== "sap-ra-lo") {
-      for (var i = 0; i < PRODUCTS.length; i++) {
-        if (state.filter === "all" || PRODUCTS[i].category === state.filter) {
-          filtered.push(PRODUCTS[i]);
-        }
+    for (var i = 0; i < PRODUCTS.length; i++) {
+      var prod = PRODUCTS[i];
+      var catMatch = state.filter === "all" || prod.category === state.filter;
+      var textMatch = matchesSearch(
+        prod.name + " " + prod.shortDesc + " " + prod.categoryLabel,
+        state.query
+      );
+      if (catMatch && textMatch) {
+        filtered.push(prod);
+      }
+    }
+
+    var filteredUpcoming = [];
+    for (var u = 0; u < UPCOMING.length; u++) {
+      var upItem = UPCOMING[u];
+      var upCatMatch = state.filter === "all" || upItem.category === state.filter;
+      var upTextMatch = matchesSearch(
+        upItem.name + " " + upItem.note + " " + upItem.categoryLabel,
+        state.query
+      );
+      if (upCatMatch && upTextMatch) {
+        filteredUpcoming.push(upItem);
       }
     }
 
     if (filtered.length === 0) {
-      menuListEl.innerHTML = "";
+      menuGridEl.innerHTML = "";
     } else {
       var html = "";
       for (var j = 0; j < filtered.length; j++) {
@@ -319,48 +360,44 @@
         }
 
         html +=
-          '<article class="menu-item" data-product-id="' +
+          '<article class="product-card" data-product-id="' +
           p.id +
           '">' +
-          '<div class="menu-item-layout">' +
-          '<div class="menu-photo">' +
-          '<div class="photo-frame">' +
+          '<div class="product-photo">' +
           '<img src="' +
           escapeHtml(p.image) +
           '" alt="' +
           escapeHtml(p.imageAlt) +
           '" loading="lazy" />' +
           "</div>" +
-          "</div>" +
-          "<div>" +
-          '<div class="menu-meta-row">' +
-          '<span class="menu-code">' +
+          '<div class="product-body">' +
+          '<div class="product-meta">' +
+          '<span class="product-code">' +
           escapeHtml(p.code) +
           "</span>" +
           "<span>·</span>" +
-          '<span class="menu-status">' +
+          "<span>" +
           escapeHtml(p.status) +
           "</span>" +
           "</div>" +
-          '<div class="menu-head">' +
-          '<h3 class="menu-name">' +
+          '<div class="product-head">' +
+          '<h3 class="product-name">' +
           escapeHtml(p.name) +
           "</h3>" +
-          '<span class="menu-dots" aria-hidden="true"></span>' +
-          '<span class="menu-price" data-price-for="' +
+          '<span class="product-price" data-price-for="' +
           p.id +
           '">' +
           formatVnd(activeVariant.price) +
           "</span>" +
           "</div>" +
-          '<p class="menu-desc">' +
+          '<p class="product-desc">' +
           escapeHtml(p.shortDesc) +
           "</p>" +
           '<div class="variant-row">' +
           '<span class="variant-label">Dung tích:</span>' +
           variantButtonsHtml +
           "</div>" +
-          '<div class="menu-actions">' +
+          '<div class="product-actions">' +
           '<button type="button" class="btn-add" data-action="add-to-cart" data-product="' +
           p.id +
           '">Thêm vào giỏ</button>' +
@@ -369,42 +406,43 @@
           '">Đọc kỹ thành phần &amp; cách dùng</button>' +
           "</div>" +
           "</div>" +
-          "</div>" +
           "</article>";
       }
-      menuListEl.innerHTML = html;
+      menuGridEl.innerHTML = html;
     }
 
-    if (showUpcoming) {
+    if (filteredUpcoming.length > 0) {
       upcomingBoxEl.hidden = false;
       var upHtml = "";
-      for (var u = 0; u < UPCOMING.length; u++) {
-        var up = UPCOMING[u];
+      for (var k = 0; k < filteredUpcoming.length; k++) {
+        var up = filteredUpcoming[k];
         upHtml +=
-          '<div class="upcoming-item">' +
-          '<div class="upcoming-head">' +
-          '<h3 class="upcoming-name">' +
+          '<div class="upcoming-card">' +
+          '<span class="upcoming-cat">' +
           escapeHtml(up.code) +
-          " — " +
+          " · " +
+          escapeHtml(up.categoryLabel) +
+          "</span>" +
+          '<h3 class="upcoming-name">' +
           escapeHtml(up.name) +
           "</h3>" +
-          '<span class="upcoming-tag">' +
+          '<p class="upcoming-meta">' +
           escapeHtml(up.meta) +
-          "</span>" +
-          "</div>" +
+          "</p>" +
           '<p class="upcoming-note">' +
           escapeHtml(up.note) +
           "</p>" +
           '<a href="#lien-he" class="upcoming-link">Nhắn mình báo khi có</a>' +
           "</div>";
       }
-      upcomingListEl.innerHTML = upHtml;
+      upcomingGridEl.innerHTML = upHtml;
     } else {
       upcomingBoxEl.hidden = true;
     }
+
+    menuEmptyEl.hidden = filtered.length > 0 || filteredUpcoming.length > 0;
   }
 
-  // Vẽ mục hỏi đáp
   function renderFaqs() {
     var html = "";
     for (var i = 0; i < FAQS.length; i++) {
@@ -488,7 +526,6 @@
     renderCartDrawer();
   }
 
-  // Mở tờ chi tiết sản phẩm
   function openDetailDrawer(productId) {
     var product = findProduct(productId);
     if (!product) return;
@@ -558,7 +595,7 @@
       '<div class="variant-row" style="margin-bottom:0;">' +
       variantBtns +
       "</div>" +
-      '<button type="button" id="detail-add-btn" class="btn-ink" data-product="' +
+      '<button type="button" id="detail-add-btn" class="btn-primary" data-product="' +
       product.id +
       '">' +
       "Thêm vào giỏ (" +
@@ -578,7 +615,6 @@
     document.body.classList.remove("sheet-open");
   }
 
-  // Sinh mã QR SVG minh họa gọn gàng cho giao diện phiếu VietQR (không gọi ảnh ngoài)
   function buildSampleQrSvg() {
     var size = 21;
     var rects = "";
@@ -622,13 +658,12 @@
       '" height="' +
       size +
       '" fill="#FFFFFF" />' +
-      '<g fill="#2A211B">' +
+      '<g fill="#1F2420">' +
       rects +
       "</g></svg>"
     );
   }
 
-  // Vẽ phiếu đặt hàng / giỏ hàng
   function renderCartDrawer() {
     if (state.submittedOrder) {
       var ord = state.submittedOrder;
@@ -683,7 +718,7 @@
         "</div>" +
         "</div>" +
         '<div class="receipt-demo-note">' +
-        "(Đây là bản nháp giao diện chạy trên máy bạn — khi đưa lên huonggung.com, đơn này sẽ gửi thẳng về Google Sheet và báo Zalo/Telegram cho bạn)." +
+        "(Đơn mẫu trên giao diện thử nghiệm — khi bạn chốt số tài khoản và mở bán thật, đơn sẽ tự động gửi về Google Sheet và báo Zalo/Telegram cho bạn)." +
         "</div>" +
         '<button type="button" id="new-order-btn" class="btn-outline" style="width:100%;">Đặt thêm đơn khác</button>' +
         "</div>";
@@ -694,7 +729,7 @@
       cartBodyEl.innerHTML =
         '<div class="cart-empty">' +
         "<p>Phiếu đặt hàng hiện đang trống. Bạn xem qua các mẻ trong thực đơn rồi chọn dung tích phù hợp nhé.</p>" +
-        '<button type="button" id="empty-back-menu" class="btn-ink">Quay lại tờ thực đơn</button>' +
+        '<button type="button" id="empty-back-menu" class="btn-primary">Quay lại danh sách sản phẩm</button>' +
         "</div>";
       return;
     }
@@ -840,15 +875,17 @@
     document.body.classList.add("sheet-open");
   }
 
-  // Bắt sự kiện trên toàn trang
+  searchInputEl.addEventListener("input", function () {
+    state.query = searchInputEl.value;
+    renderMenu();
+  });
+
   document.addEventListener("click", function (e) {
     var target = e.target;
 
-    // Tab lọc danh mục
     var filterTab = target.closest(".filter-tab");
     if (filterTab) {
-      var nextFilter = filterTab.getAttribute("data-filter");
-      state.filter = nextFilter;
+      state.filter = filterTab.getAttribute("data-filter");
       var allTabs = document.querySelectorAll(".filter-tab");
       for (var t = 0; t < allTabs.length; t++) {
         var active = allTabs[t] === filterTab;
@@ -859,7 +896,6 @@
       return;
     }
 
-    // Chọn dung tích trên thẻ thực đơn
     var variantBtn = target.closest('[data-action="select-variant"]');
     if (variantBtn) {
       var pId = variantBtn.getAttribute("data-product");
@@ -867,7 +903,7 @@
       state.selectedVariants[pId] = vId;
       var prod = findProduct(pId);
       var vr = findVariant(prod, vId);
-      var card = variantBtn.closest(".menu-item");
+      var card = variantBtn.closest(".product-card");
       if (card) {
         var btns = card.querySelectorAll(".variant-btn");
         for (var b = 0; b < btns.length; b++) {
@@ -879,7 +915,6 @@
       return;
     }
 
-    // Thêm vào giỏ từ tờ thực đơn
     var addBtn = target.closest('[data-action="add-to-cart"]');
     if (addBtn) {
       var addProdId = addBtn.getAttribute("data-product");
@@ -894,14 +929,12 @@
       return;
     }
 
-    // Mở tờ chi tiết sản phẩm
     var detailBtn = target.closest('[data-action="open-detail"]');
     if (detailBtn) {
       openDetailDrawer(detailBtn.getAttribute("data-product"));
       return;
     }
 
-    // Đổi dung tích bên trong tờ chi tiết
     var detailVarBtn = target.closest("[data-detail-variant]");
     if (detailVarBtn) {
       var detailAdd = document.getElementById("detail-add-btn");
@@ -921,14 +954,12 @@
       return;
     }
 
-    // Nút thêm vào giỏ bên trong tờ chi tiết
     if (target.id === "detail-add-btn") {
       addToCart(target.getAttribute("data-product"));
       closeDrawers();
       return;
     }
 
-    // Nút điều chỉnh giỏ hàng
     var decBtn = target.closest("[data-cart-dec]");
     if (decBtn) {
       updateCartQty(parseInt(decBtn.getAttribute("data-cart-dec"), 10), -1);
@@ -945,7 +976,6 @@
       return;
     }
 
-    // Nút quay lại thực đơn khi giỏ trống
     if (target.id === "empty-back-menu") {
       closeDrawers();
       var menuSection = document.getElementById("thuc-don");
@@ -953,7 +983,6 @@
       return;
     }
 
-    // Nút chép nội dung chuyển khoản VietQR
     if (target.id === "copy-memo-btn") {
       var memo = state.draftOrderCode;
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -971,7 +1000,6 @@
       return;
     }
 
-    // Đặt thêm đơn mới sau khi hoàn tất phiếu xác nhận
     if (target.id === "new-order-btn") {
       state.submittedOrder = null;
       state.draftOrderCode = generateOrderCode();
@@ -979,7 +1007,6 @@
       return;
     }
 
-    // Accordion hỏi đáp
     var faqBtn = target.closest(".faq-btn");
     if (faqBtn) {
       var expanded = faqBtn.getAttribute("aria-expanded") === "true";
@@ -991,7 +1018,6 @@
     }
   });
 
-  // Đổi phương thức thanh toán COD / VietQR trong giỏ
   cartBodyEl.addEventListener("change", function (e) {
     if (e.target && e.target.name === "payment") {
       state.paymentMethod = e.target.value;
@@ -1002,7 +1028,6 @@
     }
   });
 
-  // Gửi phiếu đặt hàng
   cartBodyEl.addEventListener("submit", function (e) {
     if (!e.target || e.target.id !== "order-form") return;
     e.preventDefault();
@@ -1067,14 +1092,13 @@
     }
   });
 
-  // Đánh dấu mục đang đọc trên thanh điều hướng dính
   var navLinks = document.querySelectorAll(".nav-link");
   window.addEventListener(
     "scroll",
     function () {
       var scrollY = window.scrollY + 110;
       var currentId = "thuc-don";
-      var ids = ["thuc-don", "cach-lam", "hoi-dap"];
+      var ids = ["thuc-don", "cach-lam", "hoi-dap", "lien-he"];
       for (var i = 0; i < ids.length; i++) {
         var sec = document.getElementById(ids[i]);
         if (sec && sec.offsetTop <= scrollY) {
@@ -1089,7 +1113,6 @@
     { passive: true }
   );
 
-  // Khởi tạo giao diện ban đầu
   renderMenu();
   renderFaqs();
   updateCartBadge();
