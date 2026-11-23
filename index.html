@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hương Gừng — Nước cốt gừng xoa bóp &amp; đồ tự nhiên thủ công | huonggung.com</title>
+  <meta
+    name="description"
+    content="Hương Gừng làm từng mẻ nhỏ nước cốt gừng xoa bóp không rượu, cốt gừng xuyên khung địa liền và đồ tự nhiên sạch tại nhà."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="vi_VN" />
+  <meta property="og:title" content="Hương Gừng — Nước cốt gừng xoa bóp &amp; đồ tự nhiên thủ công" />
+  <meta
+    property="og:description"
+    content="Làm từng mẻ nhỏ nước cốt gừng xoa bóp không rượu, cốt gừng xuyên khung địa liền và đồ tự nhiên sạch tại nhà."
+  />
+  <meta property="og:image" content="assets/hero-gung.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,500;0,600;1,400&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="paper-sheet">
+    <!-- Đầu trang kiểu tờ thực đơn / sổ tay -->
+    <header class="masthead">
+      <div class="masthead-meta">
+        <span>huonggung.com</span>
+        <span>Làm từng mẻ nhỏ · Thủ công tại nhà</span>
+      </div>
+      <div class="masthead-brand">
+        <div class="brand-title-wrap">
+          <p class="brand-name">Hương Gừng</p>
+          <p class="brand-sub">Sổ tay đồ tự nhiên sạch — ấm, mộc, thật tay làm</p>
+        </div>
+        <div class="craft-stamp" aria-label="Dấu mộc: Mộc và Sạch">
+          Mộc · Sạch
+          <span>Mẻ thủ công</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Thanh nhảy mục dính trên cùng -->
+    <nav class="sticky-nav" aria-label="Mục chính trên trang">
+      <div class="nav-inner">
+        <div class="nav-links">
+          <a href="#thuc-don" class="nav-link is-active">Mẻ đang có</a>
+          <a href="#cach-lam" class="nav-link">Cách mình làm</a>
+          <a href="#hoi-dap" class="nav-link">Hỏi đáp</a>
+        </div>
+        <button type="button" id="open-cart-btn" class="cart-trigger" aria-label="Mở giỏ hàng">
+          [ Giỏ · <span id="cart-count">0</span> ]
+        </button>
+      </div>
+    </nav>
+
+    <main>
+      <!-- 1. Lời mở đầu (Editorial Cover) -->
+      <section class="sheet-section" aria-labelledby="hero-title">
+        <figure class="hero-figure">
+          <div class="photo-frame">
+            <img
+              src="assets/hero-gung.jpg"
+              alt="Gừng sẻ già cắt lát tươi, chai thủy tinh nâu và thảo mộc khô trên khăn vải lanh"
+            />
+          </div>
+          <figcaption class="photo-caption">
+            Gừng sẻ già 8–10 tháng tuổi tách nhánh, rửa sạch đất trước khi ép cốt.
+          </figcaption>
+        </figure>
+
+        <h1 id="hero-title" class="hero-headline">
+          Mình làm nước cốt gừng xoa bóp theo cách đo đạc cẩn thận, không để lên men chua.
+        </h1>
+
+        <div class="hero-letter">
+          <p>
+            Chào bạn, mình là Hương. Mình làm từng mẻ nhỏ từ gừng sẻ già, xuyên khung, địa liền và
+            thảo mộc tự nhiên, không pha hương liệu hay hóa chất bảo quản.
+          </p>
+          <p>
+            Trong tờ thực đơn này, mỗi chai có gì, hợp ai, không hợp ai và cần giữ tủ lạnh sau khi
+            mở nắp ra sao mình đều ghi rõ từ đầu để bạn chọn cho đúng nhu cầu nhà mình.
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#thuc-don" class="btn-ink">Xem thực đơn mẻ này ↓</a>
+          <a href="#lien-he" class="link-underline">Nhắn Zalo hỏi mình trước</a>
+        </div>
+      </section>
+
+      <!-- 2. Tờ Thực Đơn Sản Phẩm -->
+      <section id="thuc-don" class="sheet-section" aria-labelledby="menu-title">
+        <p class="section-kicker">Thực đơn mẻ hiện tại</p>
+        <h2 id="menu-title" class="section-title">Mẻ đang có &amp; nhóm sắp ra lò</h2>
+        <p class="section-intro">
+          Sau này khi làm thêm trà thảo mộc hay gia vị nấu ăn, mình sẽ xếp tiếp vào đây theo từng
+          nhóm cho bạn dễ tìm.
+        </p>
+
+        <div class="filter-tabs" role="tablist" aria-label="Lọc theo nhóm sản phẩm">
+          <button type="button" class="filter-tab is-active" data-filter="all" role="tab" aria-selected="true">
+            Tất cả
+          </button>
+          <button type="button" class="filter-tab" data-filter="xoa-bop" role="tab" aria-selected="false">
+            Cốt gừng xoa bóp
+          </button>
+          <button type="button" class="filter-tab" data-filter="ngam-chan" role="tab" aria-selected="false">
+            Ngâm chân
+          </button>
+          <button type="button" class="filter-tab" data-filter="sap-ra-lo" role="tab" aria-selected="false">
+            Sắp ra lò
+          </button>
+        </div>
+
+        <div id="menu-list" class="menu-list"></div>
+
+        <div id="upcoming-box" class="upcoming-box">
+          <p class="upcoming-heading">Góc thử nghiệm · Sắp ra lò</p>
+          <div id="upcoming-list"></div>
+        </div>
+      </section>
+
+      <!-- 3. Sổ Tay Từ Bếp -->
+      <section id="cach-lam" class="sheet-section" aria-labelledby="process-title">
+        <p class="section-kicker">Sổ tay từ bếp</p>
+        <h2 id="process-title" class="section-title">Cách mình giữ chai cốt gừng không lên men</h2>
+        <p class="section-intro">
+          Nhiều chỗ bán hay bảo “cốt gừng sủi bọt xì ga mới là gừng thật”. Thực tế hoàn toàn ngược
+          lại: gừng mọc dưới đất mang rất nhiều nấm men hoang dại, nếu ép xong không tách tinh bột và
+          thanh trùng đúng cách thì chỉ sau 2–3 ngày sẽ lên men chua hỏng.
+        </p>
+
+        <ol class="process-list">
+          <li class="process-item">
+            <span class="process-num">01</span>
+            <div>
+              <h3 class="process-title">Chọn gừng sẻ, gừng dé già 8–10 tháng</h3>
+              <p class="process-text">
+                Củ già thân chắc, ruột vàng sậm mới nhiều tinh dầu ấm. Mình bẻ tách từng nhánh nhỏ
+                để chà sạch đất trong kẽ, sau đó hấp hơi nóng nhanh rồi hong khô vỏ trước khi ép
+                nên hạn chế hẳn men mốc bám từ đất.
+              </p>
+            </div>
+          </li>
+          <li class="process-item">
+            <span class="process-num">02</span>
+            <div>
+              <h3 class="process-title">Lắng bỏ tinh bột trong tủ mát 2–4°C suốt 6–8 tiếng</h3>
+              <p class="process-text">
+                Ép qua vải lọc mịn rồi cho vào ngăn mát lắng tự nhiên. Khi bỏ hết lớp bột trắng dưới
+                đáy, phần cốt vàng trong phía trên thoa lên da mới thấm êm, không bị bết trắng và
+                không sệt đặc khi đun thanh trùng.
+              </p>
+            </div>
+          </li>
+          <li class="process-item">
+            <span class="process-num">03</span>
+            <div>
+              <h3 class="process-title">Đo pH thật, thanh trùng kín 82–85°C và rót nóng lật chai</h3>
+              <p class="process-text">
+                Với dòng không rượu, mình chỉnh pH xuống dưới 3.8 bằng giấm gạo/chanh, đo lại bằng
+                bút đo pH rồi đậy kín nắp đun 82–85°C để giữ mùi thơm tươi. Chai thủy tinh luộc tiệt
+                trùng xong rót nóng và lật ngược 3 phút cho sạch cả mặt trong nắp.
+              </p>
+            </div>
+          </li>
+          <li class="process-item">
+            <span class="process-num">04</span>
+            <div>
+              <h3 class="process-title">Không chất bảo quản hóa học nên cần giữ mát sau mở nắp</h3>
+              <p class="process-text">
+                Chai chưa khui bạn để chỗ râm mát bình thường. Riêng dòng không rượu sau khi đã vặn
+                nắp, không khí mang men vào nên bạn cất ngăn mát tủ lạnh (2–4°C) và dùng đều trong
+                3–4 tuần là thơm nhất.
+              </p>
+            </div>
+          </li>
+        </ol>
+
+        <h3 class="compare-title">Nhìn nhanh để phân biệt chai đạt chuẩn và chai lên men hỏng</h3>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Quan sát</th>
+              <th>Chai bị lên men hỏng</th>
+              <th>Chai làm đúng kỹ thuật</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Chai &amp; nắp</th>
+              <td class="compare-bad">Chai nhựa phồng căng, mở nắp kêu “xì” mạnh, trào bọt khí.</td>
+              <td class="compare-good">Chai thủy tinh tối màu, nắp kín im, không sủi ga.</td>
+            </tr>
+            <tr>
+              <th>Mùi hương</th>
+              <td class="compare-bad">Mùi chua như giấm thiu hoặc bỗng rượu hăng gắt.</td>
+              <td class="compare-good">Thơm ấm mùi gừng già hòa quyện sả, quế, xuyên khung.</td>
+            </tr>
+            <tr>
+              <th>Độ trong</th>
+              <td class="compare-bad">Đục ngầu, có váng trắng nổi mặt hoặc cặn bột đặc quánh.</td>
+              <td class="compare-good">Nước vàng trong đồng nhất, không váng mốc.</td>
+            </tr>
+            <tr>
+              <th>Trên da</th>
+              <td class="compare-bad">Dễ rít dính, có thể châm chích đỏ da do vi sinh tạp.</td>
+              <td class="compare-good">Ấm sâu êm dịu, thấm đều, không bết trắng da.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 4. Hỏi đáp -->
+      <section id="hoi-dap" class="sheet-section" aria-labelledby="faq-title">
+        <p class="section-kicker">Giải đáp thẳng</p>
+        <h2 id="faq-title" class="section-title">Mấy điều mình hay được khách hỏi</h2>
+
+        <div id="faq-list" class="faq-list"></div>
+
+        <aside class="safety-note">
+          <strong>Lưu ý an toàn bắt buộc:</strong> Toàn bộ 3 chai đang bán đều là
+          <strong>cốt dùng ngoài da</strong> (xoa bóp, ngâm chân), <strong>tuyệt đối không uống</strong>.
+          Không bôi cho trẻ sơ sinh, trẻ nhỏ, vết thương hở hay vùng mắt; phụ nữ đang mang thai không
+          xoa cốt tính nóng lên vùng bụng và thắt lưng. Da mỏng nhạy cảm nên chấm thử 1 giọt ở cổ
+          tay đợi 15–30 phút trước khi thoa rộng.
+        </aside>
+      </section>
+
+      <!-- 5. Liên hệ -->
+      <section id="lien-he" class="sheet-section" aria-labelledby="contact-title">
+        <p class="section-kicker">Nhắn hỏi trực tiếp</p>
+        <h2 id="contact-title" class="section-title">Chưa biết chọn chai nào cứ nhắn mình</h2>
+        <p class="section-intro">
+          Bạn nhắn qua Zalo kể qua tình trạng (dùng sau sinh, đau vai gáy hay ngâm chân buổi tối),
+          mình gợi ý đúng 1 chai hợp nhất, không ép lấy thêm.
+        </p>
+
+        <div class="contact-box">
+          <div class="hero-actions">
+            <a href="https://zalo.me/0900000000" target="_blank" rel="noopener" class="btn-ink">
+              Nhắn Zalo cho Hương
+            </a>
+            <a href="tel:0900000000" class="btn-outline">Gọi 09xx xxx xxx</a>
+          </div>
+
+          <div class="contact-grid">
+            <div>
+              <span class="contact-label">Số Zalo / Điện thoại (thay số của bạn)</span>
+              <span class="contact-value">09xx xxx xxx</span>
+            </div>
+            <div>
+              <span class="contact-label">Nơi đóng mẻ</span>
+              <span class="contact-value">[Địa chỉ xưởng nhà bạn]</span>
+            </div>
+            <div>
+              <span class="contact-label">Lịch gói &amp; gửi hàng</span>
+              <span class="contact-value">Thứ 2 – Thứ 7 (chốt đơn trước 15h)</span>
+            </div>
+            <div>
+              <span class="contact-label">Phí giao hàng</span>
+              <span class="contact-value">Đồng giá 30.000đ · Miễn ship từ 350.000đ</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Chân trang -->
+    <footer class="sheet-footer">
+      <span>huonggung.com — Bản nháp giao diện tờ thực đơn nhà làm</span>
+      <span>Mọi thông số và giá hiện tại là mẫu để bạn duyệt bố cục</span>
+    </footer>
+  </div>
+
+  <!-- Cửa sổ trượt 1: Tờ chi tiết sản phẩm -->
+  <div id="detail-backdrop" class="sheet-backdrop" hidden>
+    <div
+      class="drawer-paper"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="detail-title"
+    >
+      <div class="drawer-header">
+        <div>
+          <span id="detail-code" class="drawer-kicker">№ 01</span>
+          <h3 id="detail-title" class="drawer-title">Chi tiết sản phẩm</h3>
+        </div>
+        <button type="button" id="close-detail-btn" class="drawer-close" aria-label="Đóng chi tiết">
+          Đóng ×
+        </button>
+      </div>
+      <div id="detail-body" class="drawer-body"></div>
+    </div>
+  </div>
+
+  <!-- Cửa sổ trượt 2: Phiếu đặt hàng / Giỏ hàng -->
+  <div id="cart-backdrop" class="sheet-backdrop" hidden>
+    <div
+      class="drawer-paper"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cart-drawer-title"
+    >
+      <div class="drawer-header">
+        <div>
+          <span class="drawer-kicker">huonggung.com</span>
+          <h3 id="cart-drawer-title" class="drawer-title">Phiếu đặt hàng</h3>
+        </div>
+        <button type="button" id="close-cart-btn" class="drawer-close" aria-label="Đóng giỏ hàng">
+          Đóng ×
+        </button>
+      </div>
+      <div id="cart-body" class="drawer-body"></div>
+    </div>
+  </div>
+
+  <!-- Thanh thông báo ngắn khi vừa thêm món -->
+  <div id="toast-note" class="toast-note" hidden role="status" aria-live="polite">
+    <span id="toast-text">Đã ghi vào giỏ.</span>
+    <button type="button" id="toast-open-cart" class="toast-action">Xem phiếu đặt →</button>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
