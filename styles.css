@@ -75,16 +75,8 @@ a {
   color: inherit;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+.nowrap {
   white-space: nowrap;
-  border: 0;
 }
 
 :focus-visible {
@@ -188,27 +180,6 @@ a {
   border-bottom-color: var(--green);
 }
 
-@media (max-width: 719px) {
-  .header-inner {
-    flex-wrap: wrap;
-    padding-top: 8px;
-    gap: 4px 12px;
-  }
-
-  .main-nav {
-    order: 3;
-    flex-basis: 100%;
-    justify-content: space-between;
-    gap: 10px;
-    border-top: 1px solid var(--rule);
-  }
-
-  .nav-link {
-    min-height: 40px;
-    font-size: 13px;
-  }
-}
-
 .cart-trigger {
   flex-shrink: 0;
   display: inline-flex;
@@ -233,7 +204,26 @@ a {
   color: #FFFFFF;
 }
 
-@media (max-width: 479px) {
+@media (max-width: 719px) {
+  .header-inner {
+    flex-wrap: wrap;
+    padding-top: 8px;
+    gap: 4px 12px;
+  }
+
+  .main-nav {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .nav-link {
+    min-height: 40px;
+    font-size: 13px;
+  }
+
   .cart-trigger {
     padding: 0 10px;
     font-size: 12px;
@@ -395,6 +385,15 @@ a {
   gap: 10px 12px;
 }
 
+@media (max-width: 479px) {
+  .hero-actions .btn-primary,
+  .hero-actions .btn-outline,
+  .contact-actions .btn-primary,
+  .contact-actions .btn-outline {
+    width: 100%;
+  }
+}
+
 .hero-figure {
   margin: 0;
 }
@@ -429,6 +428,12 @@ a {
   scroll-margin-top: 64px;
 }
 
+@media (max-width: 719px) {
+  .section-block {
+    scroll-margin-top: 96px;
+  }
+}
+
 .section-surface {
   background-color: var(--surface);
   border-top: 1px solid var(--rule);
@@ -442,51 +447,10 @@ a {
 }
 
 /* --------------------------------------------------------------------------
-   2. Danh mục, Tìm kiếm & Lưới sản phẩm
+   2. Danh mục & Lưới sản phẩm
    -------------------------------------------------------------------------- */
 .section-head-row {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-bottom: 18px;
-}
-
-@media (min-width: 760px) {
-  .section-head-row {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
-}
-
-.search-wrap {
-  width: 100%;
-}
-
-@media (min-width: 760px) {
-  .search-wrap {
-    width: 310px;
-  }
-}
-
-.search-input {
-  width: 100%;
-  min-height: 42px;
-  padding: 8px 13px;
-  background-color: var(--card);
-  border: 1px solid var(--rule-strong);
-  border-radius: 6px;
-  font-size: 14px;
-  color: var(--ink);
-}
-
-.search-input::placeholder {
-  color: var(--ink-muted);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--green);
+  margin-bottom: 16px;
 }
 
 .filter-tabs {
@@ -496,7 +460,23 @@ a {
   margin-bottom: 22px;
 }
 
+@media (max-width: 719px) {
+  .filter-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    margin-bottom: 18px;
+  }
+
+  .filter-tabs::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .filter-tab {
+  flex-shrink: 0;
+  white-space: nowrap;
   min-height: 38px;
   padding: 6px 14px;
   background-color: var(--card);
@@ -681,19 +661,30 @@ a {
   border-color: var(--ginger);
 }
 
-.menu-empty {
-  margin: 16px 0 0;
-  padding: 18px;
-  background-color: var(--card);
-  border: 1px dashed var(--rule-strong);
-  border-radius: 6px;
-  color: var(--ink-soft);
-  text-align: center;
+.btn-add.is-muted {
+  background-color: var(--card-warm);
+  color: var(--green-dark);
+  border-color: var(--rule-strong);
 }
 
-/* Khu vực sắp mở bán / mở rộng nhiều món tự nhiên */
+.btn-add.is-muted:hover {
+  border-color: var(--green);
+  background-color: var(--green-soft);
+}
+
+.upcoming-only-note {
+  margin: 0 0 14px;
+  padding: 13px 16px;
+  background-color: var(--card);
+  border-left: 3px solid var(--green);
+  border-radius: 0 6px 6px 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+/* Khu vực sắp mở bán */
 .upcoming-box {
-  margin-top: 26px;
+  margin-top: 24px;
   padding: 18px;
   background-color: var(--card-warm);
   border: 1px dashed var(--rule-strong);
@@ -723,6 +714,8 @@ a {
 }
 
 .upcoming-card {
+  display: flex;
+  flex-direction: column;
   padding: 14px;
   background-color: var(--card);
   border: 1px solid var(--rule);
@@ -753,12 +746,14 @@ a {
 }
 
 .upcoming-note {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-size: 13.5px;
   color: var(--ink-soft);
+  flex: 1;
 }
 
 .upcoming-link {
+  align-self: flex-start;
   font-size: 13px;
   font-weight: 500;
   color: var(--green-dark);
@@ -868,15 +863,112 @@ a {
 }
 
 .compare-bad {
-  color: var(--ink-muted);
+  color: var(--ink-soft);
 }
 
 .compare-good {
   color: var(--ink);
 }
 
+@media (max-width: 560px) {
+  .compare-table {
+    font-size: 13px;
+  }
+
+  .compare-table th,
+  .compare-table td {
+    padding: 9px 8px;
+  }
+}
+
 /* --------------------------------------------------------------------------
-   4. Hỏi đáp & Liên hệ
+   4. Bài viết / Sổ tay
+   -------------------------------------------------------------------------- */
+.article-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+@media (min-width: 720px) {
+  .article-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+  }
+}
+
+.article-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.article-thumb {
+  padding: 10px 10px 0;
+}
+
+.article-thumb img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.article-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 16px;
+}
+
+.article-date {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ginger);
+}
+
+.article-title {
+  margin: 0 0 8px;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.32;
+  color: var(--ink);
+}
+
+.article-summary {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  flex: 1;
+}
+
+.article-read-btn {
+  align-self: flex-start;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--green-dark);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.article-body-text p {
+  margin: 0 0 12px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+.article-body-text p:last-child {
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   5. Hỏi đáp & Liên hệ
    -------------------------------------------------------------------------- */
 .two-col-bottom {
   display: grid;
@@ -887,7 +979,7 @@ a {
 
 @media (min-width: 880px) {
   .two-col-bottom {
-    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-columns: 1.15fr 0.85fr;
     gap: 36px;
   }
 }
@@ -969,6 +1061,13 @@ a {
   border-radius: 8px;
 }
 
+@media (min-width: 880px) {
+  .contact-card {
+    position: sticky;
+    top: 80px;
+  }
+}
+
 .contact-intro {
   margin: 0 0 16px;
   font-size: 14px;
@@ -1038,7 +1137,7 @@ a {
 .footer-sub {
   margin: 4px 0 0;
   font-size: 13px;
-  color: rgba(247, 244, 236, 0.78);
+  color: rgba(247, 244, 236, 0.82);
 }
 
 .footer-links {
@@ -1058,7 +1157,7 @@ a {
 }
 
 /* --------------------------------------------------------------------------
-   Cửa sổ trượt (Chi tiết sản phẩm & Giỏ hàng)
+   Cửa sổ trượt (Chi tiết sản phẩm, Đọc bài viết, Giỏ hàng)
    -------------------------------------------------------------------------- */
 .sheet-backdrop {
   position: fixed;
@@ -1379,95 +1478,25 @@ textarea.field-input {
   resize: vertical;
 }
 
-.pay-options {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-
-@media (min-width: 480px) {
-  .pay-options {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.pay-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 12px;
+.cod-note-box {
+  padding: 12px 14px;
+  background-color: var(--card);
   border: 1px solid var(--rule-strong);
-  background-color: var(--card);
   border-radius: 6px;
-  cursor: pointer;
   font-size: 13.5px;
-}
-
-.pay-option input {
-  margin-top: 3px;
-  accent-color: var(--green);
-}
-
-.pay-option strong {
-  display: block;
-  font-weight: 600;
-}
-
-.pay-option span {
-  display: block;
-  font-size: 12px;
-  color: var(--ink-muted);
-}
-
-.vietqr-box {
-  padding: 14px;
-  background-color: var(--card);
-  border: 1px dashed var(--rule-strong);
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-@media (min-width: 480px) {
-  .vietqr-box {
-    flex-direction: row;
-    align-items: center;
-  }
-}
-
-.vietqr-svg-wrap {
-  flex-shrink: 0;
-  width: 122px;
-  padding: 6px;
-  background-color: #FFFFFF;
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-}
-
-.vietqr-info {
-  font-size: 13px;
-  line-height: 1.55;
   color: var(--ink-soft);
 }
 
-.vietqr-info p {
+.cod-note-box strong {
+  color: var(--ink);
+}
+
+.cod-note-box p {
   margin: 0 0 4px;
 }
 
-.copy-btn {
-  margin-top: 6px;
-  min-height: 36px;
-  padding: 4px 10px;
-  border: 1px solid var(--rule-strong);
-  border-radius: 5px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  background-color: var(--surface);
-}
-
-.copy-btn:hover {
-  border-color: var(--green);
+.cod-note-box p:last-child {
+  margin-bottom: 0;
 }
 
 .form-error {
@@ -1513,32 +1542,32 @@ textarea.field-input {
   font-weight: 600;
 }
 
-.receipt-list {
-  margin: 10px 0;
-  padding: 10px 0;
-  border-top: 1px dashed var(--rule-strong);
-  border-bottom: 1px dashed var(--rule-strong);
-  font-size: 13.5px;
+.order-msg-preview {
+  width: 100%;
+  min-height: 146px;
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  background-color: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  resize: vertical;
 }
 
-.receipt-line {
+.receipt-actions {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-
-.receipt-line:last-child {
-  margin-bottom: 0;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .receipt-demo-note {
-  margin: 12px 0 14px;
-  padding: 10px 12px;
-  background-color: var(--surface);
-  border-radius: 5px;
-  font-size: 12.5px;
-  color: var(--ink-muted);
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--ink-soft);
 }
 
 .toast-note {

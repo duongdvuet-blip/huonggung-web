@@ -1,185 +1,49 @@
 /* ==========================================================================
-   Hương Gừng — Dữ liệu thực đơn nhiều danh mục, tìm kiếm & giỏ hàng
+   Hương Gừng — Đọc dữ liệu từ data.js & xử lý đặt hàng thật qua Zalo
    ========================================================================== */
 
 (function () {
   "use strict";
 
-  var SHIPPING_FEE = 30000;
-  var FREE_SHIP_THRESHOLD = 350000;
+  var DATA = window.HUONGGUNG_DATA || {};
+  var SHOP = DATA.shop || {};
+  var CATEGORIES = Array.isArray(DATA.categories) ? DATA.categories : [];
+  var PRODUCTS = Array.isArray(DATA.products) ? DATA.products : [];
+  var ARTICLES = Array.isArray(DATA.articles) ? DATA.articles : [];
+  var FAQS = Array.isArray(DATA.faqs) ? DATA.faqs : [];
+
+  var SHIPPING_FEE = typeof SHOP.shippingFee === "number" ? SHOP.shippingFee : 30000;
+  var FREE_SHIP_THRESHOLD =
+    typeof SHOP.freeShipThreshold === "number" ? SHOP.freeShipThreshold : 350000;
+  var SHOP_PHONE = (SHOP.phone || "0369482927").replace(/\D/g, "");
+  var SHOP_PHONE_DISPLAY = SHOP.phoneDisplay || "0369 482 927";
+  var ZALO_URL = "https://zalo.me/" + SHOP_PHONE;
   var STORAGE_KEY = "huonggung_cart_v1";
 
-  var PRODUCTS = [
-    {
-      id: "cot-khong-ruou",
-      code: "№ 01",
-      category: "xoa-bop",
-      categoryLabel: "Cốt gừng xoa bóp",
-      name: "Cốt Gừng Không Rượu",
-      status: "Đang có sẵn · Mẻ mới tuần này",
-      image: "assets/sp-khong-ruou.jpg",
-      imageAlt: "Chai thủy tinh nâu đựng cốt gừng không rượu cùng chén nước cốt vàng trong và lát gừng tươi",
-      shortDesc:
-        "Dành cho bạn ngại mùi rượu hoặc da dễ khô rát (mẹ sau sinh, ngồi điều hòa nhiều, người lớn tuổi). Đã lắng tách tinh bột ở tủ mát 2–4°C và thanh trùng kín ở 82–85°C nên thoa thấm êm, không bết trắng.",
-      variants: [
-        { id: "200ml", label: "200ml", price: 185000 },
-        { id: "500ml", label: "500ml", price: 390000 }
-      ],
-      ingredients:
-        "Nước cốt ép từ gừng sẻ già 8–10 tháng tuổi đã tách sạch tinh bột, giấm gạo tự nhiên & chanh tươi hạ pH dưới 3.8, tinh chất chiết từ sả tươi, quế chi, đinh hương, xuyên khung và địa liền. 0% rượu, 0% chất bảo quản hóa học.",
-      howToUse: [
-        "Thoa cổ vai gáy, lưng, bắp chân hoặc bàn chân: lấy lượng vừa đủ xoa đều rồi day ấn 5–10 phút cho ấm dần vào trong.",
-        "Chăm sóc mẹ sau sinh: pha loãng 30–40ml vào chậu nước ấm để lau người nơi kín gió, không cần tắm lại nước lạnh.",
-        "Ngâm chân buổi tối: pha 20–30ml vào chậu nước ấm 40°C cùng chút muối hạt, ngâm 15–20 phút rồi lau thật khô chân."
-      ],
-      storage:
-        "Chưa mở nắp: để nơi thoáng mát tránh nắng trong 4–6 tháng. Sau khi vặn nắp: cất ngăn mát tủ lạnh (2–4°C) và dùng hết trong 3–4 tuần.",
-      safety:
-        "Chỉ dùng ngoài da, tuyệt đối không uống. Không bôi cho trẻ sơ sinh, trẻ nhỏ hay vết thương hở. Da nhạy cảm nên thử 1 giọt ở mặt trong cổ tay đợi 15–30 phút trước khi dùng rộng."
-    },
-    {
-      id: "cot-xuyen-khung",
-      code: "№ 02",
-      category: "xoa-bop",
-      categoryLabel: "Cốt gừng xoa bóp",
-      name: "Cốt Gừng Xuyên Khung · Địa Liền",
-      status: "Đang có sẵn · Ủ đủ ngày",
-      image: "assets/sp-xuyen-khung.jpg",
-      imageAlt: "Chai thủy tinh nâu đựng cốt gừng xuyên khung bên lát xuyên khung khô, củ gừng và ngải cứu",
-      shortDesc:
-        "Hệ rượu nếp 45° ngâm ủ đủ ngày cùng gừng sẻ già, xuyên khung và địa liền. Nồng ấm sâu, hợp xoa bóp cổ vai gáy, lưng, khớp gối khi đau mỏi hay gặp lạnh. Chỉ dùng ngoài da.",
-      variants: [
-        { id: "250ml", label: "250ml", price: 210000 },
-        { id: "500ml", label: "500ml", price: 380000 }
-      ],
-      ingredients:
-        "Gừng sẻ già để ráo kiệt nước, xuyên khung thái lát, địa liền, ngải cứu khô, muối hạt sạch và rượu nếp trắng nấu thủ công 40–45° ngâm ủ trong hũ thủy tinh tối thiểu 1–3 tháng.",
-      howToUse: [
-        "Xoa bóp vai gáy, thắt lưng, đầu gối: lấy 1 lượng nhỏ ra lòng bàn tay, xoa ấm rồi miết day vùng đau mỏi ngày 2–3 lần.",
-        "Rửa tay sạch bằng xà phòng sau khi xoa xong để tránh vô tình dụi lên mắt.",
-        "Có thể pha 20–30ml vào chậu nước ấm để ngâm chân những hôm trời trở lạnh hoặc tê bì bàn chân."
-      ],
-      storage:
-        "Nhờ độ cồn tự nhiên kết hợp muối và thảo mộc, chai giữ ổn định ở nhiệt độ phòng 1–2 năm. Đậy kín nắp ngay sau khi rót để tinh dầu và cồn không bay hơi.",
-      safety:
-        "Tuyệt đối không uống. Không dùng cho trẻ nhỏ, phụ nữ đang mang thai (tránh xoa vùng bụng, lưng dưới) và không bôi lên vết thương hở, vùng da đang trầy xước."
-    },
-    {
-      id: "cot-ngam-chan",
-      code: "№ 03",
-      category: "ngam-chan",
-      categoryLabel: "Ngâm chân",
-      name: "Cốt Gừng Ngải Cứu Ngâm Chân",
-      status: "Đang có sẵn",
-      image: "assets/sp-ngam-chan.jpg",
-      imageAlt: "Chai thủy tinh nâu cạnh bát gốm muối hạt hồng, nhánh sả tươi cắt chéo và thanh quế",
-      shortDesc:
-        "Pha 20–30ml vào chậu nước ấm 40°C thêm chút muối hạt, ngâm chân 15–20 phút buổi tối giúp ấm bàn chân, dễ ngủ. Thơm ấm mùi gừng sẻ, ngải cứu, quế chi và sả.",
-      variants: [
-        { id: "250ml", label: "250ml", price: 165000 },
-        { id: "500ml", label: "500ml", price: 300000 }
-      ],
-      ingredients:
-        "Nước cốt gừng sẻ già, ngải cứu ủ chiết ấm, sả tươi đập dập, quế chi, vỏ quýt khô và một chút muối biển sạch giúp dẫn ấm xuống lòng bàn chân.",
-      howToUse: [
-        "Đổ nước ấm khoảng 40–42°C ngập mắt cá chân vào chậu gỗ hoặc chậu nhựa dày.",
-        "Pha 20–30ml cốt gừng (tương đương 2–3 nắp chai) kèm 1 thìa muối hạt, khuấy đều rồi ngâm 15–20 phút trước khi ngủ.",
-        "Ngâm xong thấm khô chân bằng khăn bông, đi tất mỏng giữ ấm, tránh bước chân trần xuống nền gạch lạnh."
-      ],
-      storage:
-        "Đậy kín nắp để nơi thoáng mát. Nếu ít dùng hoặc mở nắp lâu ngày ở vùng nóng ẩm, giữ ở ngăn mát tủ lạnh sẽ thơm bền hơn.",
-      safety:
-        "Chỉ dùng pha nước ngâm hoặc lau ngoài da. Người bị suy giãn tĩnh mạch nặng hoặc tiểu đường mất cảm giác nhiệt ở bàn chân cần kiểm tra độ ấm nước bằng tay trước khi ngâm."
+  var defaultVariants = {};
+  for (var pIdx = 0; pIdx < PRODUCTS.length; pIdx++) {
+    var prodItem = PRODUCTS[pIdx];
+    if (Array.isArray(prodItem.variants) && prodItem.variants.length > 0) {
+      defaultVariants[prodItem.id] = prodItem.variants[0].id;
     }
-  ];
-
-  // Các sản phẩm mở rộng sắp ra lò (lọc khớp theo danh mục & ô tìm kiếm)
-  var UPCOMING = [
-    {
-      code: "№ 04",
-      category: "ngam-chan",
-      categoryLabel: "Ngâm chân",
-      name: "Muối Gừng Thảo Mộc Ngâm Chân",
-      meta: "Hũ thủy tinh 400g · Đang thử mẻ nhỏ",
-      note: "Muối hạt rang giòn cùng gừng sẻ băm, ngải cứu và sả khô để bạn múc 1 thìa thả thẳng vào chậu nước nóng."
-    },
-    {
-      code: "№ 05",
-      category: "do-uong",
-      categoryLabel: "Trà & Đồ uống ấm",
-      name: "Cốt Gừng Sả Quế Mật Ong",
-      meta: "Chai 300ml (pha uống ấm) · Đang hoàn thiện",
-      note: "Mình đang chỉnh độ ngọt thanh từ mật ong và kiểm tra độ ổn định nhiệt độ phòng trước khi mở bán."
-    },
-    {
-      code: "№ 06",
-      category: "gia-vi",
-      categoryLabel: "Gia vị nhà bếp",
-      name: "Cốt Gừng Muối Biển Nấu Ăn",
-      meta: "Chai 250ml · Đang lên công thức",
-      note: "Ép từ gừng già phối muối biển và giấm gạo để ướp cá thịt, pha nước chấm hoặc nấu cháo cho tiện."
-    }
-  ];
-
-  var FAQS = [
-    {
-      q: "Mình nên chọn chai Không Rượu hay chai Xuyên Khung Địa Liền?",
-      a: [
-        "Nếu bạn đang tìm cho mẹ sau sinh, người lớn tuổi da khô mỏng, nhân viên văn phòng ngồi điều hòa không muốn ám mùi rượu: chọn № 01 Cốt Gừng Không Rượu. Thoa rất êm và không rát.",
-        "Nếu bạn cần xoa bóp tập trung cho người đau mỏi cổ vai gáy, đau lưng, khớp gối hoặc quen cảm giác ấm sâu nhanh của rượu thuốc: chọn № 02 Cốt Gừng Xuyên Khung · Địa Liền."
-      ]
-    },
-    {
-      q: "Tại sao chai nhỏ 200ml–250ml lại có giá gần 200 nghìn?",
-      a: [
-        "Để ép ra nước cốt thật, mỗi mẻ mình đều chọn gừng sẻ, gừng dé già 8–10 tháng tuổi rồi tách nhánh rửa sạch từng kẽ củ, bỏ phần thâm xơ và gạn bỏ lớp tinh bột trắng bên dưới.",
-        "Mẻ nào cũng dùng chai thủy tinh tối màu luộc tiệt trùng kỹ (tránh chai nhựa phồng mềm và tránh ánh nắng làm hỏng hoạt chất), đóng mẻ nhỏ hàng tuần chứ không sản xuất công nghiệp số lượng lớn."
-      ]
-    },
-    {
-      q: "Nhận chai về thấy dưới đáy có chút cặn mỏng thì có phải bị hỏng không?",
-      a: [
-        "Nếu là lớp phấn thảo mộc mịn lắng rất mỏng ở đáy và nước phía trên vẫn trong, mở nắp thơm ấm mùi gừng quế sả, không xì bọt ga thì hoàn toàn bình thường — bạn chỉ cần lắc nhẹ trước khi thoa.",
-        "Ngược lại, nếu thấy chai bị trào bọt ga, mùi chua như giấm thiu hoặc nổi váng trắng trên mặt, bạn chụp ảnh gửi Zalo cho mình ngay để mình đổi chai mới hoàn toàn."
-      ]
-    },
-    {
-      q: "Giao hàng bọc thế nào, có được kiểm tra khi nhận không?",
-      a: [
-        "Mỗi chai thủy tinh đều được bọc xốp chống sốc riêng trong hộp giấy cứng. Bạn nhận hàng cứ mở hộp kiểm tra xem nắp có nguyên vẹn, có vỡ đổ hay không rồi mới thanh toán cho người giao.",
-        "Nếu không may vỡ trong lúc vận chuyển, bạn nhắn mình một tiếng là mình gửi bù ngay chai mới, không tính thêm bất kỳ khoản nào."
-      ]
-    },
-    {
-      q: "Những ai KHÔNG nên dùng các chai cốt gừng này?",
-      a: [
-        "Cả 3 sản phẩm hiện tại đều là cốt NGOẠI DỤNG dùng ngoài da, tuyệt đối không uống.",
-        "Không dùng cho trẻ sơ sinh và trẻ nhỏ (da trẻ rất mỏng, tinh dầu cay nóng dễ gây rát đỏ). Không bôi lên vết thương hở, vùng da trầy xước hoặc gần mắt. Phụ nữ đang mang thai tránh xoa lên bụng và thắt lưng."
-      ]
-    }
-  ];
+  }
 
   var state = {
     filter: "all",
-    query: "",
-    selectedVariants: {
-      "cot-khong-ruou": "200ml",
-      "cot-xuyen-khung": "250ml",
-      "cot-ngam-chan": "250ml"
-    },
+    selectedVariants: defaultVariants,
     cart: loadCart(),
-    paymentMethod: "cod",
     draftOrderCode: generateOrderCode(),
     submittedOrder: null
   };
 
   var toastTimer = null;
 
+  var filterTabsEl = document.getElementById("filter-tabs");
   var menuGridEl = document.getElementById("menu-grid");
-  var menuEmptyEl = document.getElementById("menu-empty");
+  var upcomingOnlyNoteEl = document.getElementById("upcoming-only-note");
   var upcomingBoxEl = document.getElementById("upcoming-box");
   var upcomingGridEl = document.getElementById("upcoming-grid");
-  var searchInputEl = document.getElementById("product-search");
+  var articleGridEl = document.getElementById("article-grid");
   var faqListEl = document.getElementById("faq-list");
   var cartCountEl = document.getElementById("cart-count");
   var openCartBtn = document.getElementById("open-cart-btn");
@@ -190,6 +54,12 @@
   var detailBodyEl = document.getElementById("detail-body");
   var closeDetailBtn = document.getElementById("close-detail-btn");
 
+  var articleBackdrop = document.getElementById("article-backdrop");
+  var articleModalMetaEl = document.getElementById("article-modal-meta");
+  var articleModalTitleEl = document.getElementById("article-modal-title");
+  var articleModalBodyEl = document.getElementById("article-modal-body");
+  var closeArticleBtn = document.getElementById("close-article-btn");
+
   var cartBackdrop = document.getElementById("cart-backdrop");
   var cartBodyEl = document.getElementById("cart-body");
   var closeCartBtn = document.getElementById("close-cart-btn");
@@ -197,30 +67,24 @@
   var toastEl = document.getElementById("toast-note");
   var toastTextEl = document.getElementById("toast-text");
   var toastOpenCartBtn = document.getElementById("toast-open-cart");
+  var toastZaloLink = document.getElementById("toast-zalo-link");
 
   function formatVnd(amount) {
-    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ";
+    return Number(amount || 0)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ";
   }
 
   function escapeHtml(str) {
-    return String(str)
+    return String(str || "")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
   }
 
-  function normalizeText(str) {
-    return String(str)
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d");
-  }
-
   function generateOrderCode() {
-    var num = Math.floor(1000 + Math.random() * 9000);
-    return "HG-" + num;
+    return "HG-" + Math.floor(1000 + Math.random() * 9000);
   }
 
   function loadCart() {
@@ -242,6 +106,44 @@
     }
   }
 
+  function copyTextToClipboard(text, onDone) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () {
+          if (onDone) onDone(true);
+        },
+        function () {
+          fallbackCopy(text, onDone);
+        }
+      );
+      return;
+    }
+    fallbackCopy(text, onDone);
+  }
+
+  function fallbackCopy(text, onDone) {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      if (onDone) onDone(!!ok);
+    } catch (e) {
+      if (onDone) onDone(false);
+    }
+  }
+
+  function getCategoryLabel(catId) {
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      if (CATEGORIES[i].id === catId) return CATEGORIES[i].label;
+    }
+    return catId;
+  }
+
   function findProduct(productId) {
     for (var i = 0; i < PRODUCTS.length; i++) {
       if (PRODUCTS[i].id === productId) return PRODUCTS[i];
@@ -249,11 +151,19 @@
     return null;
   }
 
-  function findVariant(product, variantId) {
-    for (var i = 0; i < product.variants.length; i++) {
-      if (product.variants[i].id === variantId) return product.variants[i];
+  function findArticle(articleId) {
+    for (var i = 0; i < ARTICLES.length; i++) {
+      if (ARTICLES[i].id === articleId) return ARTICLES[i];
     }
-    return product.variants[0];
+    return null;
+  }
+
+  function findVariant(product, variantId) {
+    var list = Array.isArray(product.variants) ? product.variants : [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === variantId) return list[i];
+    }
+    return list[0] || { id: "default", label: "Tiêu chuẩn", price: 0 };
   }
 
   function getCartTotals() {
@@ -291,67 +201,159 @@
     toastEl.hidden = true;
   }
 
-  function showToast(message) {
+  function showToast(message, mode) {
     toastTextEl.textContent = message;
+    if (mode === "zalo") {
+      toastOpenCartBtn.hidden = true;
+      toastZaloLink.hidden = false;
+      toastZaloLink.href = ZALO_URL;
+      toastZaloLink.textContent = "Mở Zalo " + SHOP_PHONE_DISPLAY + " →";
+    } else {
+      toastOpenCartBtn.hidden = false;
+      toastZaloLink.hidden = true;
+    }
     toastEl.hidden = false;
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(function () {
       toastEl.hidden = true;
-    }, 3200);
+    }, 4000);
   }
 
-  function matchesSearch(text, query) {
-    if (!query) return true;
-    return normalizeText(text).indexOf(normalizeText(query)) !== -1;
+  // Đồng bộ thông tin cửa hàng từ data.js vào giao diện
+  function applyShopInfo() {
+    var brandEl = document.getElementById("brand-name-text");
+    var stampEl = document.getElementById("brand-stamp-text");
+    var eyebrowEl = document.getElementById("hero-eyebrow");
+    var titleEl = document.getElementById("hero-title");
+    var letterEl = document.getElementById("hero-letter");
+    var heroImgEl = document.getElementById("hero-img");
+    var heroCaptionEl = document.getElementById("hero-caption");
+
+    if (brandEl && SHOP.brandName) brandEl.textContent = SHOP.brandName;
+    if (stampEl && SHOP.stampText) stampEl.textContent = SHOP.stampText;
+    if (eyebrowEl && SHOP.eyebrow) eyebrowEl.textContent = SHOP.eyebrow;
+
+    if (titleEl && SHOP.heroTitle) {
+      var fullTitle = SHOP.heroTitle;
+      var hl = SHOP.heroHighlight || "";
+      if (hl && fullTitle.indexOf(hl) !== -1) {
+        var parts = fullTitle.split(hl);
+        titleEl.innerHTML =
+          escapeHtml(parts[0]) + "<em>" + escapeHtml(hl) + "</em>" + escapeHtml(parts.slice(1).join(hl));
+      } else {
+        titleEl.textContent = fullTitle;
+      }
+    }
+
+    if (letterEl && Array.isArray(SHOP.heroParagraphs) && SHOP.heroParagraphs.length > 0) {
+      var pHtml = "";
+      for (var i = 0; i < SHOP.heroParagraphs.length; i++) {
+        pHtml += "<p>" + escapeHtml(SHOP.heroParagraphs[i]) + "</p>";
+      }
+      letterEl.innerHTML = pHtml;
+    }
+
+    if (heroImgEl && SHOP.heroImage) heroImgEl.src = SHOP.heroImage;
+    if (heroCaptionEl && SHOP.heroCaption) heroCaptionEl.textContent = SHOP.heroCaption;
+
+    var heroZalo = document.getElementById("hero-zalo-btn");
+    var contactZalo = document.getElementById("contact-zalo-btn");
+    var contactTel = document.getElementById("contact-tel-btn");
+    var phoneEl = document.getElementById("shop-phone");
+    var addrEl = document.getElementById("shop-address");
+    var schedEl = document.getElementById("shop-schedule");
+    var shipEl = document.getElementById("shop-ship");
+    var policyEl = document.getElementById("shop-policy");
+    var footerSubEl = document.getElementById("footer-sub");
+
+    if (heroZalo) {
+      heroZalo.href = ZALO_URL;
+      heroZalo.textContent = "Nhắn Zalo " + SHOP_PHONE_DISPLAY;
+    }
+    if (contactZalo) contactZalo.href = ZALO_URL;
+    if (contactTel) {
+      contactTel.href = "tel:" + SHOP_PHONE;
+      contactTel.textContent = "Gọi " + SHOP_PHONE_DISPLAY;
+    }
+    if (phoneEl) phoneEl.textContent = SHOP_PHONE_DISPLAY;
+    if (addrEl && SHOP.address) addrEl.textContent = SHOP.address;
+    if (schedEl && SHOP.schedule) schedEl.textContent = SHOP.schedule;
+    if (shipEl) {
+      shipEl.textContent =
+        "Đồng giá " + formatVnd(SHIPPING_FEE) + " · Miễn ship từ " + formatVnd(FREE_SHIP_THRESHOLD);
+    }
+    if (policyEl && SHOP.policy) policyEl.textContent = SHOP.policy;
+    if (footerSubEl) {
+      footerSubEl.innerHTML =
+        escapeHtml(SHOP.address || "Phường Phố Hiến, Thành phố Hưng Yên") +
+        ' · <span class="nowrap">Zalo ' +
+        escapeHtml(SHOP_PHONE_DISPLAY) +
+        "</span>";
+    }
+    toastZaloLink.href = ZALO_URL;
+  }
+
+  function renderFilterTabs() {
+    var html =
+      '<button type="button" class="filter-tab' +
+      (state.filter === "all" ? " is-active" : "") +
+      '" data-filter="all" role="tab" aria-selected="' +
+      (state.filter === "all" ? "true" : "false") +
+      '">Tất cả</button>';
+
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      var cat = CATEGORIES[i];
+      var isAct = state.filter === cat.id;
+      html +=
+        '<button type="button" class="filter-tab' +
+        (isAct ? " is-active" : "") +
+        '" data-filter="' +
+        escapeHtml(cat.id) +
+        '" role="tab" aria-selected="' +
+        (isAct ? "true" : "false") +
+        '">' +
+        escapeHtml(cat.label) +
+        "</button>";
+    }
+    filterTabsEl.innerHTML = html;
   }
 
   function renderMenu() {
-    var filtered = [];
+    var activeProducts = [];
+    var upcomingProducts = [];
+
     for (var i = 0; i < PRODUCTS.length; i++) {
       var prod = PRODUCTS[i];
-      var catMatch = state.filter === "all" || prod.category === state.filter;
-      var textMatch = matchesSearch(
-        prod.name + " " + prod.shortDesc + " " + prod.categoryLabel,
-        state.query
-      );
-      if (catMatch && textMatch) {
-        filtered.push(prod);
+      if (state.filter !== "all" && prod.category !== state.filter) continue;
+      if (prod.statusType === "upcoming") {
+        upcomingProducts.push(prod);
+      } else {
+        activeProducts.push(prod);
       }
     }
 
-    var filteredUpcoming = [];
-    for (var u = 0; u < UPCOMING.length; u++) {
-      var upItem = UPCOMING[u];
-      var upCatMatch = state.filter === "all" || upItem.category === state.filter;
-      var upTextMatch = matchesSearch(
-        upItem.name + " " + upItem.note + " " + upItem.categoryLabel,
-        state.query
-      );
-      if (upCatMatch && upTextMatch) {
-        filteredUpcoming.push(upItem);
-      }
-    }
-
-    if (filtered.length === 0) {
+    if (activeProducts.length === 0) {
       menuGridEl.innerHTML = "";
     } else {
       var html = "";
-      for (var j = 0; j < filtered.length; j++) {
-        var p = filtered[j];
-        var activeVariantId = state.selectedVariants[p.id] || p.variants[0].id;
+      for (var j = 0; j < activeProducts.length; j++) {
+        var p = activeProducts[j];
+        var variants = Array.isArray(p.variants) ? p.variants : [];
+        var activeVariantId = state.selectedVariants[p.id] || (variants[0] && variants[0].id);
         var activeVariant = findVariant(p, activeVariantId);
+        var isOut = p.statusType === "out_of_stock";
 
         var variantButtonsHtml = "";
-        for (var v = 0; v < p.variants.length; v++) {
-          var vr = p.variants[v];
+        for (var v = 0; v < variants.length; v++) {
+          var vr = variants[v];
           var isSelected = vr.id === activeVariant.id;
           variantButtonsHtml +=
             '<button type="button" class="variant-btn' +
             (isSelected ? " is-selected" : "") +
             '" data-action="select-variant" data-product="' +
-            p.id +
+            escapeHtml(p.id) +
             '" data-variant="' +
-            vr.id +
+            escapeHtml(vr.id) +
             '">' +
             escapeHtml(vr.label) +
             " — " +
@@ -359,15 +361,23 @@
             "</button>";
         }
 
+        var actionButtonHtml = isOut
+          ? '<button type="button" class="btn-add is-muted" data-action="notify-upcoming" data-upcoming-name="' +
+            escapeHtml(p.name) +
+            '">Tạm hết mẻ · Nhắn Zalo đặt trước</button>'
+          : '<button type="button" class="btn-add" data-action="add-to-cart" data-product="' +
+            escapeHtml(p.id) +
+            '">Thêm vào giỏ</button>';
+
         html +=
           '<article class="product-card" data-product-id="' +
-          p.id +
+          escapeHtml(p.id) +
           '">' +
           '<div class="product-photo">' +
           '<img src="' +
-          escapeHtml(p.image) +
+          escapeHtml(p.image || "assets/hero-gung.jpg") +
           '" alt="' +
-          escapeHtml(p.imageAlt) +
+          escapeHtml(p.imageAlt || p.name) +
           '" loading="lazy" />' +
           "</div>" +
           '<div class="product-body">' +
@@ -385,7 +395,7 @@
           escapeHtml(p.name) +
           "</h3>" +
           '<span class="product-price" data-price-for="' +
-          p.id +
+          escapeHtml(p.id) +
           '">' +
           formatVnd(activeVariant.price) +
           "</span>" +
@@ -393,16 +403,15 @@
           '<p class="product-desc">' +
           escapeHtml(p.shortDesc) +
           "</p>" +
-          '<div class="variant-row">' +
-          '<span class="variant-label">Dung tích:</span>' +
-          variantButtonsHtml +
-          "</div>" +
+          (variantButtonsHtml
+            ? '<div class="variant-row"><span class="variant-label">Dung tích:</span>' +
+              variantButtonsHtml +
+              "</div>"
+            : "") +
           '<div class="product-actions">' +
-          '<button type="button" class="btn-add" data-action="add-to-cart" data-product="' +
-          p.id +
-          '">Thêm vào giỏ</button>' +
+          actionButtonHtml +
           '<button type="button" class="link-underline" data-action="open-detail" data-product="' +
-          p.id +
+          escapeHtml(p.id) +
           '">Đọc kỹ thành phần &amp; cách dùng</button>' +
           "</div>" +
           "</div>" +
@@ -411,36 +420,76 @@
       menuGridEl.innerHTML = html;
     }
 
-    if (filteredUpcoming.length > 0) {
+    upcomingOnlyNoteEl.hidden = !(activeProducts.length === 0 && upcomingProducts.length > 0);
+
+    if (upcomingProducts.length > 0) {
       upcomingBoxEl.hidden = false;
       var upHtml = "";
-      for (var k = 0; k < filteredUpcoming.length; k++) {
-        var up = filteredUpcoming[k];
+      for (var k = 0; k < upcomingProducts.length; k++) {
+        var up = upcomingProducts[k];
         upHtml +=
           '<div class="upcoming-card">' +
           '<span class="upcoming-cat">' +
           escapeHtml(up.code) +
           " · " +
-          escapeHtml(up.categoryLabel) +
+          escapeHtml(getCategoryLabel(up.category)) +
           "</span>" +
           '<h3 class="upcoming-name">' +
           escapeHtml(up.name) +
           "</h3>" +
           '<p class="upcoming-meta">' +
-          escapeHtml(up.meta) +
+          escapeHtml(up.meta || up.status) +
           "</p>" +
           '<p class="upcoming-note">' +
-          escapeHtml(up.note) +
+          escapeHtml(up.shortDesc) +
           "</p>" +
-          '<a href="#lien-he" class="upcoming-link">Nhắn mình báo khi có</a>' +
+          '<button type="button" class="upcoming-link" data-action="notify-upcoming" data-upcoming-name="' +
+          escapeHtml(up.name) +
+          '">Nhắn Zalo báo mình khi có</button>' +
           "</div>";
       }
       upcomingGridEl.innerHTML = upHtml;
     } else {
       upcomingBoxEl.hidden = true;
     }
+  }
 
-    menuEmptyEl.hidden = filtered.length > 0 || filteredUpcoming.length > 0;
+  function renderArticles() {
+    if (!articleGridEl) return;
+    if (ARTICLES.length === 0) {
+      articleGridEl.innerHTML =
+        '<p class="section-intro">Chưa có bài viết nào. Bạn có thể thêm bài trong trang quản trị.</p>';
+      return;
+    }
+    var html = "";
+    for (var i = 0; i < ARTICLES.length; i++) {
+      var art = ARTICLES[i];
+      html +=
+        '<article class="article-card">' +
+        (art.image
+          ? '<div class="article-thumb"><img src="' +
+            escapeHtml(art.image) +
+            '" alt="' +
+            escapeHtml(art.title) +
+            '" loading="lazy" /></div>'
+          : "") +
+        '<div class="article-card-body">' +
+        '<p class="article-date">Sổ tay · ' +
+        escapeHtml(art.date || "") +
+        "</p>" +
+        '<h3 class="article-title">' +
+        escapeHtml(art.title) +
+        "</h3>" +
+        '<p class="article-summary">' +
+        escapeHtml(art.summary) +
+        "</p>" +
+        '<button type="button" class="article-read-btn" data-action="open-article" data-article="' +
+        escapeHtml(art.id) +
+        '">Đọc bài viết →</button>' +
+        "</div>" +
+        "</article>";
+    }
+    articleGridEl.innerHTML = html;
   }
 
   function renderFaqs() {
@@ -449,8 +498,9 @@
       var item = FAQS[i];
       var isOpen = i === 0;
       var paragraphs = "";
-      for (var k = 0; k < item.a.length; k++) {
-        paragraphs += "<p>" + escapeHtml(item.a[k]) + "</p>";
+      var answers = Array.isArray(item.a) ? item.a : [item.a];
+      for (var k = 0; k < answers.length; k++) {
+        paragraphs += "<p>" + escapeHtml(answers[k]) + "</p>";
       }
       html +=
         '<div class="faq-item">' +
@@ -478,7 +528,7 @@
 
   function addToCart(productId, variantId) {
     var product = findProduct(productId);
-    if (!product) return;
+    if (!product || product.statusType === "upcoming" || product.statusType === "out_of_stock") return;
     var variant = findVariant(product, variantId || state.selectedVariants[productId]);
 
     var found = false;
@@ -504,7 +554,7 @@
     state.submittedOrder = null;
     saveCart();
     updateCartBadge();
-    showToast("Đã thêm " + product.name + " (" + variant.label + ") vào giỏ.");
+    showToast("Đã thêm " + product.name + " (" + variant.label + ") vào giỏ.", "cart");
   }
 
   function updateCartQty(index, delta) {
@@ -526,29 +576,38 @@
     renderCartDrawer();
   }
 
+  function closeDrawers() {
+    detailBackdrop.hidden = true;
+    articleBackdrop.hidden = true;
+    cartBackdrop.hidden = true;
+    document.body.classList.remove("sheet-open");
+  }
+
   function openDetailDrawer(productId) {
     var product = findProduct(productId);
     if (!product) return;
     hideToast();
-    var activeVariantId = state.selectedVariants[product.id] || product.variants[0].id;
+    var variants = Array.isArray(product.variants) ? product.variants : [];
+    var activeVariantId = state.selectedVariants[product.id] || (variants[0] && variants[0].id);
     var activeVariant = findVariant(product, activeVariantId);
 
-    detailCodeEl.textContent = product.code + " · " + product.categoryLabel;
+    detailCodeEl.textContent = product.code + " · " + getCategoryLabel(product.category);
     detailTitleEl.textContent = product.name;
 
     var useItems = "";
-    for (var i = 0; i < product.howToUse.length; i++) {
-      useItems += "<li>" + escapeHtml(product.howToUse[i]) + "</li>";
+    var howList = Array.isArray(product.howToUse) ? product.howToUse : [];
+    for (var i = 0; i < howList.length; i++) {
+      useItems += "<li>" + escapeHtml(howList[i]) + "</li>";
     }
 
     var variantBtns = "";
-    for (var v = 0; v < product.variants.length; v++) {
-      var vr = product.variants[v];
+    for (var v = 0; v < variants.length; v++) {
+      var vr = variants[v];
       variantBtns +=
         '<button type="button" class="variant-btn' +
         (vr.id === activeVariant.id ? " is-selected" : "") +
         '" data-detail-variant="' +
-        vr.id +
+        escapeHtml(vr.id) +
         '">' +
         escapeHtml(vr.label) +
         " — " +
@@ -557,170 +616,121 @@
     }
 
     detailBodyEl.innerHTML =
-      '<div class="detail-photo">' +
-      '<div class="photo-frame">' +
-      '<img src="' +
-      escapeHtml(product.image) +
-      '" alt="' +
-      escapeHtml(product.imageAlt) +
-      '" />' +
-      "</div>" +
-      "</div>" +
+      (product.image
+        ? '<div class="detail-photo"><div class="photo-frame"><img src="' +
+          escapeHtml(product.image) +
+          '" alt="' +
+          escapeHtml(product.imageAlt || product.name) +
+          '" /></div></div>'
+        : "") +
       '<p style="margin:0 0 14px; color: var(--ink-soft);">' +
       escapeHtml(product.shortDesc) +
       "</p>" +
-      '<div class="detail-block">' +
-      "<h4>Thành phần chi tiết</h4>" +
-      "<p>" +
+      '<div class="detail-block"><h4>Thành phần chi tiết</h4><p>' +
       escapeHtml(product.ingredients) +
-      "</p>" +
-      "</div>" +
-      '<div class="detail-block">' +
-      "<h4>Cách dùng từng trường hợp</h4>" +
-      "<ul>" +
-      useItems +
-      "</ul>" +
-      "</div>" +
-      '<div class="detail-block">' +
-      "<h4>Bảo quản sau khi mở nắp</h4>" +
-      "<p>" +
+      "</p></div>" +
+      (useItems
+        ? '<div class="detail-block"><h4>Cách dùng từng trường hợp</h4><ul>' + useItems + "</ul></div>"
+        : "") +
+      '<div class="detail-block"><h4>Bảo quản sau khi mở nắp</h4><p>' +
       escapeHtml(product.storage) +
-      "</p>" +
-      "</div>" +
-      '<div class="detail-warning">' +
-      "<strong>Lưu ý an toàn:</strong> " +
+      "</p></div>" +
+      '<div class="detail-warning"><strong>Lưu ý an toàn:</strong> ' +
       escapeHtml(product.safety) +
       "</div>" +
       '<div class="detail-footer-bar">' +
       '<div class="variant-row" style="margin-bottom:0;">' +
       variantBtns +
       "</div>" +
-      '<button type="button" id="detail-add-btn" class="btn-primary" data-product="' +
-      product.id +
-      '">' +
-      "Thêm vào giỏ (" +
-      formatVnd(activeVariant.price) +
-      ")" +
-      "</button>" +
+      (product.statusType === "out_of_stock"
+        ? '<button type="button" class="btn-outline" data-action="notify-upcoming" data-upcoming-name="' +
+          escapeHtml(product.name) +
+          '">Tạm hết · Nhắn Zalo</button>'
+        : '<button type="button" id="detail-add-btn" class="btn-primary" data-product="' +
+          escapeHtml(product.id) +
+          '">Thêm vào giỏ (' +
+          formatVnd(activeVariant.price) +
+          ")</button>") +
       "</div>";
 
     detailBackdrop.hidden = false;
+    articleBackdrop.hidden = true;
     cartBackdrop.hidden = true;
     document.body.classList.add("sheet-open");
   }
 
-  function closeDrawers() {
+  function openArticleDrawer(articleId) {
+    var art = findArticle(articleId);
+    if (!art) return;
+    hideToast();
+
+    articleModalMetaEl.textContent = "Sổ tay · " + (art.date || "");
+    articleModalTitleEl.textContent = art.title;
+
+    var paras = Array.isArray(art.content) ? art.content : String(art.content || "").split("\n");
+    var bodyHtml = "";
+    for (var i = 0; i < paras.length; i++) {
+      var line = String(paras[i]).trim();
+      if (line) bodyHtml += "<p>" + escapeHtml(line) + "</p>";
+    }
+
+    articleModalBodyEl.innerHTML =
+      (art.image
+        ? '<div class="detail-photo"><div class="photo-frame"><img src="' +
+          escapeHtml(art.image) +
+          '" alt="' +
+          escapeHtml(art.title) +
+          '" /></div></div>'
+        : "") +
+      '<div class="article-body-text">' +
+      bodyHtml +
+      "</div>";
+
+    articleBackdrop.hidden = false;
     detailBackdrop.hidden = true;
     cartBackdrop.hidden = true;
-    document.body.classList.remove("sheet-open");
+    document.body.classList.add("sheet-open");
   }
 
-  function buildSampleQrSvg() {
-    var size = 21;
-    var rects = "";
-    function isFinder(r, c) {
-      return (
-        (r < 7 && c < 7) ||
-        (r < 7 && c >= size - 7) ||
-        (r >= size - 7 && c < 7)
+  function buildOrderMessage(ord) {
+    var lines = ["ĐƠN HÀNG HƯƠNG GỪNG — MÃ " + ord.code];
+    for (var i = 0; i < ord.items.length; i++) {
+      var it = ord.items[i];
+      lines.push(
+        "- " + it.name + " (" + it.variantLabel + ") x " + it.qty + ": " + formatVnd(it.price * it.qty)
       );
     }
-    function finderFilled(r, c) {
-      var lr = r < 7 ? r : r - (size - 7);
-      var lc = c < 7 ? c : c - (size - 7);
-      if (lr === 0 || lr === 6 || lc === 0 || lc === 6) return true;
-      if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) return true;
-      return false;
-    }
-    for (var r = 0; r < size; r++) {
-      for (var c = 0; c < size; c++) {
-        var fill = false;
-        if (isFinder(r, c)) {
-          fill = finderFilled(r, c);
-        } else if (r === 6 || c === 6) {
-          fill = (r + c) % 2 === 0;
-        } else {
-          fill = ((r * 7 + c * 13 + r * c) % 5) < 2;
-        }
-        if (fill) {
-          rects += '<rect x="' + c + '" y="' + r + '" width="1" height="1" />';
-        }
-      }
-    }
-    return (
-      '<svg viewBox="0 0 ' +
-      size +
-      " " +
-      size +
-      '" width="108" height="108" shape-rendering="crispEdges" role="img" aria-label="Mã VietQR mẫu">' +
-      '<rect width="' +
-      size +
-      '" height="' +
-      size +
-      '" fill="#FFFFFF" />' +
-      '<g fill="#1F2420">' +
-      rects +
-      "</g></svg>"
-    );
+    lines.push("Phí giao hàng: " + (ord.shipping === 0 ? "Miễn phí" : formatVnd(ord.shipping)));
+    lines.push("Tổng cộng (COD): " + formatVnd(ord.total));
+    lines.push("---");
+    lines.push("Người nhận: " + ord.name + " - " + ord.phone);
+    lines.push("Địa chỉ: " + ord.address);
+    if (ord.note) lines.push("Ghi chú: " + ord.note);
+    return lines.join("\n");
   }
 
   function renderCartDrawer() {
     if (state.submittedOrder) {
       var ord = state.submittedOrder;
-      var linesHtml = "";
-      for (var i = 0; i < ord.items.length; i++) {
-        var it = ord.items[i];
-        linesHtml +=
-          '<div class="receipt-line">' +
-          "<span>" +
-          escapeHtml(it.name) +
-          " (" +
-          escapeHtml(it.variantLabel) +
-          ") × " +
-          it.qty +
-          "</span>" +
-          '<span style="font-family:var(--font-mono);">' +
-          formatVnd(it.price * it.qty) +
-          "</span>" +
-          "</div>";
-      }
-
       cartBodyEl.innerHTML =
         '<div class="receipt-box">' +
         '<p class="receipt-code">MÃ ĐƠN: ' +
         escapeHtml(ord.code) +
         "</p>" +
-        '<h4 class="receipt-title">Mình đã ghi nhận đơn hàng của bạn</h4>' +
-        '<p style="margin:0 0 8px; font-size:14px; color:var(--ink-soft);">' +
-        "Người nhận: <strong>" +
-        escapeHtml(ord.name) +
-        "</strong> · " +
-        escapeHtml(ord.phone) +
-        "<br/>Địa chỉ: " +
-        escapeHtml(ord.address) +
-        (ord.note ? "<br/>Ghi chú: " + escapeHtml(ord.note) : "") +
-        "</p>" +
-        '<div class="receipt-list">' +
-        linesHtml +
-        '<div class="receipt-line" style="margin-top:6px; padding-top:6px; border-top:1px solid var(--rule);">' +
-        "<span>Phí giao hàng</span>" +
-        '<span style="font-family:var(--font-mono);">' +
-        (ord.shipping === 0 ? "Miễn phí" : formatVnd(ord.shipping)) +
-        "</span>" +
+        '<h4 class="receipt-title">Đã tạo sẵn tin nhắn đơn hàng</h4>' +
+        '<p class="receipt-demo-note">Mình đã chép sẵn nội dung đơn dưới đây. Bạn bấm <strong>Mở Zalo</strong> rồi Dán (Paste) gửi cho Hương để mình chốt đơn nhé.</p>' +
+        '<textarea id="order-msg-preview" class="order-msg-preview" readonly>' +
+        escapeHtml(ord.messageText) +
+        "</textarea>" +
+        '<div class="receipt-actions">' +
+        '<a href="' +
+        escapeHtml(ZALO_URL) +
+        '" target="_blank" rel="noopener" class="btn-primary">Mở Zalo gửi cho Hương (' +
+        escapeHtml(SHOP_PHONE_DISPLAY) +
+        ")</a>" +
+        '<button type="button" id="copy-order-msg-btn" class="btn-outline">Chép nội dung đơn</button>' +
         "</div>" +
-        '<div class="receipt-line" style="font-weight:600;">' +
-        "<span>Tổng thanh toán (" +
-        (ord.paymentMethod === "vietqr" ? "Chuyển khoản VietQR" : "COD khi nhận") +
-        ")</span>" +
-        '<span style="font-family:var(--font-mono);">' +
-        formatVnd(ord.total) +
-        "</span>" +
-        "</div>" +
-        "</div>" +
-        '<div class="receipt-demo-note">' +
-        "(Đơn mẫu trên giao diện thử nghiệm — khi bạn chốt số tài khoản và mở bán thật, đơn sẽ tự động gửi về Google Sheet và báo Zalo/Telegram cho bạn)." +
-        "</div>" +
-        '<button type="button" id="new-order-btn" class="btn-outline" style="width:100%;">Đặt thêm đơn khác</button>' +
+        '<button type="button" id="new-order-btn" class="link-underline">Đặt thêm đơn khác</button>' +
         "</div>";
       return;
     }
@@ -771,11 +781,27 @@
 
     var shipGapNote =
       totals.shipping === 0
-        ? "Đơn từ 350.000đ đã được miễn phí giao hàng."
-        : "Thêm " + formatVnd(FREE_SHIP_THRESHOLD - totals.subtotal) + " nữa để được miễn phí giao hàng.";
+        ? "Đơn từ " + formatVnd(FREE_SHIP_THRESHOLD) + " đã được miễn phí giao hàng."
+        : "Thêm " +
+          formatVnd(FREE_SHIP_THRESHOLD - totals.subtotal) +
+          " nữa để được miễn phí giao hàng.";
 
-    var isVietQr = state.paymentMethod === "vietqr";
-    var transferMemo = state.draftOrderCode;
+    var hasBank = SHOP.bankName && SHOP.bankAccount && SHOP.bankOwner;
+    var payBoxHtml =
+      '<div class="cod-note-box">' +
+      "<p><strong>Thanh toán khi nhận hàng (COD):</strong> Mở hộp kiểm tra chai nguyên vẹn rồi trả tiền cho người giao.</p>" +
+      (hasBank
+        ? "<p>Hoặc chuyển khoản: <strong>" +
+          escapeHtml(SHOP.bankName) +
+          " — " +
+          escapeHtml(SHOP.bankAccount) +
+          " (" +
+          escapeHtml(SHOP.bankOwner) +
+          ")</strong> · Nội dung: <strong>" +
+          escapeHtml(state.draftOrderCode) +
+          "</strong></p>"
+        : "<p>Nếu bạn muốn chuyển khoản trước, nhắn mình qua Zalo mình gửi số tài khoản nhé.</p>") +
+      "</div>";
 
     cartBodyEl.innerHTML =
       '<div class="cart-items">' +
@@ -824,44 +850,9 @@
       '<label class="field-label" for="cus-note">Lời nhắn thêm (nếu có)</label>' +
       '<input id="cus-note" name="note" type="text" class="field-input" placeholder="Ví dụ: Giao giờ hành chính / mua tặng mẹ sau sinh" />' +
       "</div>" +
-      '<div class="field-group">' +
-      '<span class="field-label">Cách thanh toán</span>' +
-      '<div class="pay-options">' +
-      '<label class="pay-option">' +
-      '<input type="radio" name="payment" value="cod"' +
-      (!isVietQr ? " checked" : "") +
-      " />" +
-      "<div><strong>Trả tiền khi nhận (COD)</strong><span>Kiểm tra chai nguyên vẹn rồi trả tiền</span></div>" +
-      "</label>" +
-      '<label class="pay-option">' +
-      '<input type="radio" name="payment" value="vietqr"' +
-      (isVietQr ? " checked" : "") +
-      " />" +
-      "<div><strong>Chuyển khoản (VietQR)</strong><span>Tự điền sẵn số tiền &amp; mã đơn</span></div>" +
-      "</label>" +
-      "</div>" +
-      "</div>" +
-      '<div id="vietqr-panel" class="vietqr-box"' +
-      (isVietQr ? "" : " hidden") +
-      ">" +
-      '<div class="vietqr-svg-wrap">' +
-      buildSampleQrSvg() +
-      "</div>" +
-      '<div class="vietqr-info">' +
-      "<p><strong>Phiếu chuyển khoản mẫu (VietQR)</strong></p>" +
-      "<p>Ngân hàng: <strong>[Tên ngân hàng]</strong><br/>Số TK: <strong style='font-family:var(--font-mono);'>0000 1234 5678</strong> — <strong>[Chủ TK]</strong></p>" +
-      "<p>Số tiền: <strong style='font-family:var(--font-mono);'>" +
-      formatVnd(totals.total) +
-      "</strong><br/>Nội dung CK: <strong id='vietqr-memo' style='font-family:var(--font-mono);'>" +
-      escapeHtml(transferMemo) +
-      "</strong></p>" +
-      '<button type="button" id="copy-memo-btn" class="copy-btn">Chép nội dung ' +
-      escapeHtml(transferMemo) +
-      "</button>" +
-      "</div>" +
-      "</div>" +
+      payBoxHtml +
       '<p id="form-error" class="form-error" hidden></p>' +
-      '<button type="submit" class="submit-order-btn">Gửi đơn cho Hương (' +
+      '<button type="submit" class="submit-order-btn">Tạo đơn &amp; gửi qua Zalo (' +
       formatVnd(totals.total) +
       ")</button>" +
       "</form>";
@@ -872,13 +863,9 @@
     renderCartDrawer();
     cartBackdrop.hidden = false;
     detailBackdrop.hidden = true;
+    articleBackdrop.hidden = true;
     document.body.classList.add("sheet-open");
   }
-
-  searchInputEl.addEventListener("input", function () {
-    state.query = searchInputEl.value;
-    renderMenu();
-  });
 
   document.addEventListener("click", function (e) {
     var target = e.target;
@@ -886,12 +873,7 @@
     var filterTab = target.closest(".filter-tab");
     if (filterTab) {
       state.filter = filterTab.getAttribute("data-filter");
-      var allTabs = document.querySelectorAll(".filter-tab");
-      for (var t = 0; t < allTabs.length; t++) {
-        var active = allTabs[t] === filterTab;
-        allTabs[t].classList.toggle("is-active", active);
-        allTabs[t].setAttribute("aria-selected", active ? "true" : "false");
-      }
+      renderFilterTabs();
       renderMenu();
       return;
     }
@@ -929,9 +911,25 @@
       return;
     }
 
+    var notifyBtn = target.closest('[data-action="notify-upcoming"]');
+    if (notifyBtn) {
+      var upName = notifyBtn.getAttribute("data-upcoming-name") || "sản phẩm mới";
+      var msg = "Chào Hương, khi nào có mẻ " + upName + " thì nhắn báo mình nhé.";
+      copyTextToClipboard(msg, function () {
+        showToast("Đã chép lời nhắn hỏi món “" + upName + "”.", "zalo");
+      });
+      return;
+    }
+
     var detailBtn = target.closest('[data-action="open-detail"]');
     if (detailBtn) {
       openDetailDrawer(detailBtn.getAttribute("data-product"));
+      return;
+    }
+
+    var articleBtn = target.closest('[data-action="open-article"]');
+    if (articleBtn) {
+      openArticleDrawer(articleBtn.getAttribute("data-article"));
       return;
     }
 
@@ -983,20 +981,10 @@
       return;
     }
 
-    if (target.id === "copy-memo-btn") {
-      var memo = state.draftOrderCode;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(memo).then(
-          function () {
-            target.textContent = "Đã chép: " + memo;
-          },
-          function () {
-            target.textContent = "Mã đơn: " + memo;
-          }
-        );
-      } else {
-        target.textContent = "Mã đơn: " + memo;
-      }
+    if (target.id === "copy-order-msg-btn" && state.submittedOrder) {
+      copyTextToClipboard(state.submittedOrder.messageText, function () {
+        target.textContent = "Đã chép ✓";
+      });
       return;
     }
 
@@ -1015,16 +1003,6 @@
       if (sign) sign.textContent = expanded ? "+" : "−";
       var panel = faqBtn.nextElementSibling;
       if (panel) panel.hidden = expanded;
-    }
-  });
-
-  cartBodyEl.addEventListener("change", function (e) {
-    if (e.target && e.target.name === "payment") {
-      state.paymentMethod = e.target.value;
-      var qrPanel = document.getElementById("vietqr-panel");
-      if (qrPanel) {
-        qrPanel.hidden = state.paymentMethod !== "vietqr";
-      }
     }
   });
 
@@ -1051,17 +1029,20 @@
     }
 
     var totals = getCartTotals();
-    state.submittedOrder = {
+    var orderObj = {
       code: state.draftOrderCode,
       name: name,
       phone: phone,
       address: address,
       note: note,
-      paymentMethod: state.paymentMethod,
       items: state.cart.slice(),
       shipping: totals.shipping,
       total: totals.total
     };
+    orderObj.messageText = buildOrderMessage(orderObj);
+    state.submittedOrder = orderObj;
+
+    copyTextToClipboard(orderObj.messageText);
 
     state.cart = [];
     state.draftOrderCode = generateOrderCode();
@@ -1077,17 +1058,24 @@
   });
 
   closeDetailBtn.addEventListener("click", closeDrawers);
+  closeArticleBtn.addEventListener("click", closeDrawers);
   closeCartBtn.addEventListener("click", closeDrawers);
 
   detailBackdrop.addEventListener("click", function (e) {
     if (e.target === detailBackdrop) closeDrawers();
+  });
+  articleBackdrop.addEventListener("click", function (e) {
+    if (e.target === articleBackdrop) closeDrawers();
   });
   cartBackdrop.addEventListener("click", function (e) {
     if (e.target === cartBackdrop) closeDrawers();
   });
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && (!detailBackdrop.hidden || !cartBackdrop.hidden)) {
+    if (
+      e.key === "Escape" &&
+      (!detailBackdrop.hidden || !articleBackdrop.hidden || !cartBackdrop.hidden)
+    ) {
       closeDrawers();
     }
   });
@@ -1096,9 +1084,9 @@
   window.addEventListener(
     "scroll",
     function () {
-      var scrollY = window.scrollY + 110;
+      var scrollY = window.scrollY + 120;
       var currentId = "thuc-don";
-      var ids = ["thuc-don", "cach-lam", "hoi-dap", "lien-he"];
+      var ids = ["thuc-don", "cach-lam", "bai-viet", "hoi-dap"];
       for (var i = 0; i < ids.length; i++) {
         var sec = document.getElementById(ids[i]);
         if (sec && sec.offsetTop <= scrollY) {
@@ -1113,7 +1101,10 @@
     { passive: true }
   );
 
+  applyShopInfo();
+  renderFilterTabs();
   renderMenu();
+  renderArticles();
   renderFaqs();
   updateCartBadge();
 })();

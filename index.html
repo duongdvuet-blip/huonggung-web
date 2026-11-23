@@ -29,15 +29,15 @@
   <header class="site-header">
     <div class="container header-inner">
       <a href="#top" class="brand-lockup">
-        <span class="brand-name">Hương Gừng</span>
-        <span class="craft-stamp">Mộc · Sạch</span>
+        <span id="brand-name-text" class="brand-name">Hương Gừng</span>
+        <span id="brand-stamp-text" class="craft-stamp">Mộc · Sạch</span>
       </a>
 
       <nav class="main-nav" aria-label="Mục chính trên trang">
         <a href="#thuc-don" class="nav-link is-active">Sản phẩm</a>
         <a href="#cach-lam" class="nav-link">Cách mình làm</a>
+        <a href="#bai-viet" class="nav-link">Bài viết</a>
         <a href="#hoi-dap" class="nav-link">Hỏi đáp</a>
-        <a href="#lien-he" class="nav-link nav-hide-xs">Liên hệ</a>
       </nav>
 
       <button type="button" id="open-cart-btn" class="cart-trigger" aria-label="Mở giỏ hàng">
@@ -51,11 +51,11 @@
     <section class="hero-section" aria-labelledby="hero-title">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">Làm từng mẻ nhỏ · Phường Phố Hiến, Hưng Yên</p>
+          <p id="hero-eyebrow" class="eyebrow">Làm từng mẻ nhỏ · Phường Phố Hiến, Hưng Yên</p>
           <h1 id="hero-title" class="hero-headline">
             Mình làm nước cốt gừng xoa bóp <em>theo cách đo đạc cẩn thận</em>, không để lên men chua.
           </h1>
-          <div class="hero-letter">
+          <div id="hero-letter" class="hero-letter">
             <p>
               Chào bạn, mình là Hương. Mình làm từng mẻ nhỏ từ gừng sẻ già, xuyên khung, địa liền và
               thảo mộc tự nhiên, không pha hương liệu hay hóa chất bảo quản.
@@ -67,7 +67,7 @@
           </div>
           <div class="hero-actions">
             <a href="#thuc-don" class="btn-primary">Xem các mẻ đang có</a>
-            <a href="https://zalo.me/0369482927" target="_blank" rel="noopener" class="btn-outline">
+            <a id="hero-zalo-btn" href="https://zalo.me/0369482927" target="_blank" rel="noopener" class="btn-outline">
               Nhắn Zalo 0369 482 927
             </a>
           </div>
@@ -76,18 +76,19 @@
         <figure class="hero-figure">
           <div class="photo-frame">
             <img
+              id="hero-img"
               src="assets/hero-gung.jpg"
               alt="Gừng sẻ già cắt lát tươi, chai thủy tinh nâu và thảo mộc khô trên khăn vải lanh"
             />
           </div>
-          <figcaption class="photo-caption">
+          <figcaption id="hero-caption" class="photo-caption">
             Gừng sẻ già 8–10 tháng tuổi tách nhánh, rửa sạch đất trước khi ép cốt.
           </figcaption>
         </figure>
       </div>
     </section>
 
-    <!-- 2. Danh mục sản phẩm & tìm kiếm nhanh -->
+    <!-- 2. Danh mục sản phẩm (đã tinh gọn bỏ ô tìm kiếm thừa) -->
     <section id="thuc-don" class="section-block section-surface" aria-labelledby="menu-title">
       <div class="container">
         <div class="section-head-row">
@@ -95,39 +96,14 @@
             <p class="eyebrow">Thực đơn mẻ hiện tại</p>
             <h2 id="menu-title" class="section-title">Chọn theo nhu cầu nhà mình</h2>
           </div>
-
-          <div class="search-wrap">
-            <label class="sr-only" for="product-search">Tìm sản phẩm</label>
-            <input
-              id="product-search"
-              type="search"
-              class="search-input"
-              placeholder="Tìm món (không rượu, ngâm chân...)"
-            />
-          </div>
         </div>
 
-        <div class="filter-tabs" role="tablist" aria-label="Lọc theo danh mục sản phẩm">
-          <button type="button" class="filter-tab is-active" data-filter="all" role="tab" aria-selected="true">
-            Tất cả
-          </button>
-          <button type="button" class="filter-tab" data-filter="xoa-bop" role="tab" aria-selected="false">
-            Cốt gừng xoa bóp
-          </button>
-          <button type="button" class="filter-tab" data-filter="ngam-chan" role="tab" aria-selected="false">
-            Ngâm chân
-          </button>
-          <button type="button" class="filter-tab" data-filter="do-uong" role="tab" aria-selected="false">
-            Trà &amp; Đồ uống ấm
-          </button>
-          <button type="button" class="filter-tab" data-filter="gia-vi" role="tab" aria-selected="false">
-            Gia vị nhà bếp
-          </button>
-        </div>
+        <div id="filter-tabs" class="filter-tabs" role="tablist" aria-label="Lọc theo danh mục sản phẩm"></div>
 
         <div id="menu-grid" class="menu-grid"></div>
-        <p id="menu-empty" class="menu-empty" hidden>
-          Không thấy món nào khớp từ khóa bạn vừa gõ. Bạn thử xóa bớt chữ hoặc chọn tab “Tất cả” nhé.
+
+        <p id="upcoming-only-note" class="upcoming-only-note" hidden>
+          Các món thuộc nhóm này mình đang thử mẻ nhỏ, chưa mở bán chính thức. Bạn bấm nhắn Zalo bên dưới để mình báo ngay khi ra lò.
         </p>
 
         <div id="upcoming-box" class="upcoming-box">
@@ -224,8 +200,21 @@
       </div>
     </section>
 
-    <!-- 4. Hỏi đáp & Liên hệ (2 cột gọn trên máy tính) -->
-    <section id="hoi-dap" class="section-block section-surface" aria-labelledby="faq-title">
+    <!-- 4. Bài viết / Sổ tay kinh nghiệm -->
+    <section id="bai-viet" class="section-block section-surface" aria-labelledby="articles-title">
+      <div class="container">
+        <p class="eyebrow">Ghi chép thêm</p>
+        <h2 id="articles-title" class="section-title">Bài viết &amp; kinh nghiệm dùng đồ mộc</h2>
+        <p class="section-intro">
+          Mấy chuyện mình hay giải thích khi khách nhắn hỏi, viết gọn lại đây để bạn đọc lúc rảnh.
+        </p>
+
+        <div id="article-grid" class="article-grid"></div>
+      </div>
+    </section>
+
+    <!-- 5. Hỏi đáp & Liên hệ (2 cột cân đối trên máy tính) -->
+    <section id="hoi-dap" class="section-block" aria-labelledby="faq-title">
       <div class="container two-col-bottom">
         <div>
           <p class="eyebrow">Giải đáp thẳng</p>
@@ -251,28 +240,32 @@
           </p>
 
           <div class="contact-actions">
-            <a href="https://zalo.me/0369482927" target="_blank" rel="noopener" class="btn-primary">
+            <a id="contact-zalo-btn" href="https://zalo.me/0369482927" target="_blank" rel="noopener" class="btn-primary">
               Nhắn Zalo cho Hương
             </a>
-            <a href="tel:0369482927" class="btn-outline">Gọi 0369 482 927</a>
+            <a id="contact-tel-btn" href="tel:0369482927" class="btn-outline">Gọi 0369 482 927</a>
           </div>
 
           <dl class="contact-details">
             <div>
               <dt>Số Zalo / Điện thoại</dt>
-              <dd>0369 482 927</dd>
+              <dd id="shop-phone">0369 482 927</dd>
             </div>
             <div>
               <dt>Nơi đóng mẻ</dt>
-              <dd>Phường Phố Hiến, Thành phố Hưng Yên</dd>
+              <dd id="shop-address">Phường Phố Hiến, Thành phố Hưng Yên</dd>
             </div>
             <div>
               <dt>Lịch gói &amp; gửi hàng</dt>
-              <dd>Thứ 2 – Thứ 7 (chốt đơn trước 15h)</dd>
+              <dd id="shop-schedule">Thứ 2 – Thứ 7 (chốt đơn trước 15h)</dd>
             </div>
             <div>
               <dt>Phí giao hàng</dt>
-              <dd>Đồng giá 30.000đ · Miễn ship từ 350.000đ</dd>
+              <dd id="shop-ship">Đồng giá 30.000đ · Miễn ship từ 350.000đ</dd>
+            </div>
+            <div>
+              <dt>Kiểm hàng &amp; đổi bù</dt>
+              <dd id="shop-policy">Được mở hộp kiểm tra trước khi trả tiền; vỡ chai khi giao mình gửi bù ngay không tính phí.</dd>
             </div>
           </dl>
         </div>
@@ -285,12 +278,15 @@
     <div class="container footer-inner">
       <div>
         <p class="footer-brand">Hương Gừng — Đồ tự nhiên thủ công</p>
-        <p class="footer-sub">Phường Phố Hiến, Thành phố Hưng Yên · Zalo 0369 482 927</p>
+        <p id="footer-sub" class="footer-sub">
+          Phường Phố Hiến, Thành phố Hưng Yên · <span class="nowrap">Zalo 0369 482 927</span>
+        </p>
       </div>
       <div class="footer-links">
         <a href="#thuc-don">Sản phẩm</a>
         <a href="#cach-lam">Cách mình làm</a>
-        <a href="#hoi-dap">Hỏi đáp</a>
+        <a href="#bai-viet">Bài viết</a>
+        <a href="#lien-he">Liên hệ</a>
       </div>
     </div>
   </footer>
@@ -311,7 +307,23 @@
     </div>
   </div>
 
-  <!-- Cửa sổ trượt 2: Phiếu đặt hàng / Giỏ hàng -->
+  <!-- Cửa sổ trượt 2: Đọc bài viết -->
+  <div id="article-backdrop" class="sheet-backdrop" hidden>
+    <div class="drawer-paper" role="dialog" aria-modal="true" aria-labelledby="article-modal-title">
+      <div class="drawer-header">
+        <div>
+          <span id="article-modal-meta" class="drawer-kicker">Sổ tay · 23/11/2026</span>
+          <h3 id="article-modal-title" class="drawer-title">Bài viết</h3>
+        </div>
+        <button type="button" id="close-article-btn" class="drawer-close" aria-label="Đóng bài viết">
+          Đóng ×
+        </button>
+      </div>
+      <div id="article-modal-body" class="drawer-body"></div>
+    </div>
+  </div>
+
+  <!-- Cửa sổ trượt 3: Phiếu đặt hàng / Giỏ hàng -->
   <div id="cart-backdrop" class="sheet-backdrop" hidden>
     <div class="drawer-paper" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title">
       <div class="drawer-header">
@@ -327,12 +339,16 @@
     </div>
   </div>
 
-  <!-- Thanh thông báo ngắn khi vừa thêm món -->
+  <!-- Thanh thông báo ngắn -->
   <div id="toast-note" class="toast-note" hidden role="status" aria-live="polite">
     <span id="toast-text">Đã ghi vào giỏ.</span>
     <button type="button" id="toast-open-cart" class="toast-action">Xem phiếu đặt →</button>
+    <a id="toast-zalo-link" href="https://zalo.me/0369482927" target="_blank" rel="noopener" class="toast-action" hidden>
+      Mở Zalo →
+    </a>
   </div>
 
+  <script src="data.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
